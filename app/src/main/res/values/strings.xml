@@ -1,0 +1,174 @@
+<resources>
+    <string name="app_name">Monitor</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_add">Add Coin</string>
+
+    <string name="create_price_alert">Create new price alert</string>
+    <string name="edit_price_alert">Edit Price Alert</string>
+
+    <string name="enter_price_prompt">Enter Price Alert Value</string>
+    <string name="enter_type_title">Type of Value</string>
+    <string name="enter_type_description">Type of Value</string>
+    <string name="enter_direction_title">Type of Change</string>
+    <string name="enter_direction_description">Price Movement</string>
+    <string name="enter_value_title">Value</string>
+    <string name="enter_value_price_type">to</string>
+    <string name="enter_value_rise_action">Rise&#160;</string>
+    <string name="enter_value_percent_type">by</string>
+    <string name="enter_value_fall_action">Fall&#160;</string>
+    <string name="enter_value_change_action">Change&#160;</string>
+    <string name="enter_value_description">Value</string>
+    <string name="enter_frequency_title">Frequency</string>
+    <string name="enter_frequency_description">Frequency</string>
+
+    <string name="create_new_pair">Create New Currency Pair</string>
+
+    <string name="pair_input_from_symbol">%s/</string>
+    <string name="pair_creation_success">New pair %1$s/%2$s created</string>
+    <string name="pair_creation_failure">%1$s is an invalid currency for %2$s/%3$s</string>
+
+    <string name="delete_pair_title">Delete Pair</string>
+    <string name="delete_pait_message">Really delete %s?</string>
+
+    <string name="item_alert_edit">Edit</string>
+    <string name="item_alert_delete">Remove</string>
+
+    <string name="alert_fall_to">Fall to %s</string>
+    <string name="alert_rise_to">Rise to %s</string>
+    <string name="alert_fall_by">Fall by %s%%</string>
+    <string name="alert_rise_by">Rise by %s%%</string>
+    <string name="alert_change_to">Change to %s</string>
+    <string name="alert_change_by">Change by %s%%</string>
+
+    <string name="price">XX</string>
+    <string name="percent">+X%</string>
+
+    <string name="hour">Hour</string>
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="month">Mo</string>
+    <string name="year">Year</string>
+    <string name="all_time">all</string>
+
+    <string name="saved_price_file">pricefile</string>
+    <string name="saved_price_alert">price</string>
+
+    <string name="price_alert_notification_title">Price Alert!</string>
+    <string name="price_alert_notification_description">The price of %1$s has %2$s %3$f %4$s.</string>
+    <string name="price_alert_notification_description_percent">The price of %1$s has %2$s %3$f%% to %4$f %5$s.</string>
+    <string name="price_alert_notification_increased_to">increased to</string>
+    <string name="price_alert_notification_decreased_to">decreased to</string>
+    <string name="price_alert_notification_increased_by">increased by</string>
+    <string name="price_alert_notification_decreased_by">decreased by</string>
+
+    <string-array name="frequencies">
+        <item>1 hour</item>
+        <item>45 minutes</item>
+        <item>30 minutes</item>
+        <item>15 minutes</item>
+        <item>10 minutes</item>
+    </string-array>
+
+    <string name="price_option">Price</string>
+    <string name="percent_option">Percent</string>
+
+    <string name="rise_option">Rise</string>
+    <string name="fall_option">Fall</string>
+    <string name="change_option">Change</string>
+
+    <!-- Strings related to Settings -->
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="use_data">Use Cellular Data</string>
+    <string name="use_data_description">Use cellular data for alerts</string>
+
+    <string name="exchange_select">Exchange</string>
+    <string name="exchange_description">CCCAGG is the default exchange, it is an aggregate of exchanges created by CryptoCompare. CCCAGG is also the fallback exchange used if any of your pairs doesn\'t work with the exchange you have selected</string>
+    <string name="exchange_default">CCCAGG</string>
+
+    <string-array name="exchanges">
+        <item>CCCAGG</item>
+        <item>Coinbase</item>
+        <item>Bitfinex</item>
+        <item>Kraken</item>
+        <item>Bitstamp</item>
+        <item>Coinone</item>
+        <item>Abucoins</item>
+        <item>ANXBTC</item>
+        <item>Binance</item>
+        <item>Bit2C</item>
+        <item>BitBay</item>
+        <item>bitFlyer</item>
+        <item>bitFlyerFX</item>
+        <item>Bithumb</item>
+        <item>BitMarket</item>
+        <item>Bitso</item>
+        <item>BitSquare</item>
+        <item>BitTrex</item>
+        <item>Bleutrade</item>
+        <item>BTC38</item>
+        <item>BTCChina</item>
+        <item>BTCE</item>
+        <item>BTCMarkets</item>
+        <item>btcXchange</item>
+        <item>BTCXIndia</item>
+        <item>BTER</item>
+        <item>BXinth</item>
+        <item>CCEDK</item>
+        <item>CCEX</item>
+        <item>Cexio</item>
+        <item>CHBTC</item>
+        <item>Coincheck</item>
+        <item>Coinfloor</item>
+        <item>Coinroom</item>
+        <item>Coinse</item>
+        <item>Coinsetter</item>
+        <item>Cryptopia</item>
+        <item>CryptoX</item>
+        <item>Cryptsy</item>
+        <item>EtherDelta</item>
+        <item>EthexIndia</item>
+        <item>Exmo</item>
+        <item>Gatecoin</item>
+        <item>Gateio</item>
+        <item>Gemini</item>
+        <item>HitBTC</item>
+        <item>Huobi</item>
+        <item>HuobiPro</item>
+        <item>itBit</item>
+        <item>Jubi</item>
+        <item>Korbit</item>
+        <item>LakeBTC</item>
+        <item>Liqui</item>
+        <item>LiveCoin</item>
+        <item>LocalBitcoins</item>
+        <item>Luno</item>
+        <item>Lykke</item>
+        <item>MercadoBitcoin</item>
+        <item>MonetaGo</item>
+        <item>Novaexchange</item>
+        <item>OKCoin</item>
+        <item>OKEX</item>
+        <item>Paymium</item>
+        <item>Poloniex</item>
+        <item>QuadrigaCX</item>
+        <item>Quoine</item>
+        <item>Remitano</item>
+        <item>TheRockTrading</item>
+        <item>Tidex</item>
+        <item>TuxExchange</item>
+        <item>Unocoin</item>
+        <item>Vaultoro</item>
+        <item>ViaBTC</item>
+        <item>WavesDEX</item>
+        <item>Yacuna</item>
+        <item>Yobit</item>
+        <item>Yunbi</item>
+        <item>Zaif</item>
+    </string-array>
+
+    <!-- Accessibility -->
+    <string name="move_pair_up_description">Move the currency pair up</string>
+    <string name="move_pair_down_description">Move the currency pair down</string>
+    <string name="delete_pair_description">Delete the currency pair</string>
+</resources>

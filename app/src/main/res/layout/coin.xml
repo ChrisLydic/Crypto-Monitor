@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.chrislydic.monitor.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="20dp">
+
+    <ImageView
+        android:id="@+id/coin_image"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:cropToPadding="false"
+        android:scaleType="fitCenter"
+        android:layout_weight="1"
+        app:srcCompat="@android:drawable/btn_star_big_on"/>
+<!--TODO change to a real placeholder image-->
+
+    <TextView
+        android:id="@+id/coin_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+        android:textSize="14sp"
+        android:layout_margin="10dp"/>
+
+</com.chrislydic.monitor.SquareLayout>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="4dp"
+              android:layout_marginStart="10dp"
+              android:layout_marginEnd="10dp">
+
+    <TextView
+        android:id="@+id/pair_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+        android:textSize="20sp"
+        android:layout_weight="1"
+        android:layout_margin="10dp"/>
+
+    <ImageButton
+        android:id="@+id/move_pair_up"
+        style="@android:style/Widget.DeviceDefault.Light.Button.Borderless.Small"
+        android:contentDescription="@string/move_pair_up_description"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_keyboard_arrow_up"/>
+
+    <ImageButton
+        android:id="@+id/move_pair_down"
+        style="@android:style/Widget.DeviceDefault.Light.Button.Borderless.Small"
+        android:contentDescription="@string/move_pair_down_description"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_keyboard_arrow_down"/>
+
+    <ImageButton
+        android:id="@+id/delete_pair"
+        style="@android:style/Widget.DeviceDefault.Light.Button.Borderless.Small"
+        android:contentDescription="@string/delete_pair_description"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_delete"/>
+
+</LinearLayout>
