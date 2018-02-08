@@ -10,15 +10,20 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.chrislydic.monitor.database.AlertHelper;
+import com.chrislydic.monitor.database.PairHelper;
 import com.chrislydic.monitor.network.CryptoCompareAPI;
 import com.chrislydic.monitor.network.SimplePrice;
+import com.chrislydic.monitor.network.SimplePriceDeserializer;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  *
@@ -35,11 +40,18 @@ public class PriceAlertService extends JobService {
 	@Override
 	public boolean onStartJob( JobParameters job ) {
 		jobParams = job;
-		alert = (Alert) job.getExtras().getSerializable( ALERT_ARG );
-		pair = (Pair) job.getExtras().getSerializable( PAIR_ARG );
+		long alertId = job.getExtras().getLong( ALERT_ARG );
+		alert = AlertHelper.get( getApplicationContext() ).getAlert( alertId );
+		pair = PairHelper.get( getApplicationContext() ).getPair( alert.getPairId() );
+
+		Gson gson =
+				new GsonBuilder()
+						.registerTypeAdapter(SimplePrice.class, new SimplePriceDeserializer())
+						.create();
 
 		Retrofit retrofitCryptoCompare = new Retrofit.Builder()
 				.baseUrl(CryptoCompareAPI.URL)
+				.addConverterFactory( GsonConverterFactory.create(gson))
 				.build();
 
 		CryptoCompareAPI priceService = retrofitCryptoCompare.create( CryptoCompareAPI.class );
@@ -140,9 +152,7 @@ public class PriceAlertService extends JobService {
 			}
 
 			AlertHelper.get( getApplicationContext() ).updatePrevious( alert.getId(), price );
-			alert.setPrevious( price );
 
-			jobParams.getExtras().putSerializable( ALERT_ARG, alert );
 			jobFinished( jobParams, false );
 		}
 

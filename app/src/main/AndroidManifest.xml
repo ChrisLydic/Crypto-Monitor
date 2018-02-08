@@ -30,6 +30,14 @@
             android:name=".PairActivity"
             android:parentActivityName="com.chrislydic.monitor.MainActivity" android:theme="@style/SettingsTheme">
         </activity>
+
+        <service
+            android:exported="false"
+            android:name=".PriceAlertService">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

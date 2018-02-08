@@ -237,11 +237,12 @@ public class CoinFragment extends Fragment {
 										alertDirection = Alert.CHANGE_TO;
 									}
 
-									AlertHelper
+									Alert alert = AlertHelper
 											.get( getContext() )
 											.addAlert( alertDirection, Double.parseDouble( input ), coinType.getId(), alertType, frequencyValue );
 
-									alerts = AlertHelper.get( getContext() ).getAlerts( coinType );
+									createPriceAlert(alert);
+									alerts.add( alert );
 									updateUI();
 
 									alertDialog.dismiss();
@@ -583,13 +584,13 @@ public class CoinFragment extends Fragment {
 
 		// cancel the price alert job if it is running
 		dispatcher.cancel( PRICE_ALERT_JOB );
+		dispatcher.cancelAll();
 
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
 		boolean syncOnDataPref = sharedPref.getBoolean("pref_use_data", false);
 
 		Bundle alertInfo = new Bundle();
-		alertInfo.putSerializable( PriceAlertService.ALERT_ARG, alert );
-		alertInfo.putSerializable( PriceAlertService.PAIR_ARG, coinType );
+		alertInfo.putLong( PriceAlertService.ALERT_ARG, alert.getId() );
 
 		// create a price alert job that is recurring, lasts forever (until this app kills it),
 		//   and runs every x minutes provided there is network access

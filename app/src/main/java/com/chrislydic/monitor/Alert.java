@@ -35,24 +35,24 @@ public class Alert implements Serializable {
 	public String getString( Context ctx ) {
 		if (type == PRICE_VALUE) {
 			if (action == RISE_TO) {
-				return ctx.getResources().getString( R.string.alert_rise_to,
+				return Long.toString( id)+ctx.getResources().getString( R.string.alert_rise_to,
 						String.format( Locale.getDefault(), "%.2f", amount ) );
 			} else if (action == FALL_TO) {
-				return ctx.getResources().getString( R.string.alert_fall_to,
+				return Long.toString( id)+ctx.getResources().getString( R.string.alert_fall_to,
 						String.format( Locale.getDefault(), "%.2f", amount ) );
 			} else {
-				return ctx.getResources().getString( R.string.alert_change_to,
+				return Long.toString( id)+ctx.getResources().getString( R.string.alert_change_to,
 						String.format( Locale.getDefault(), "%.2f", amount ) );
 			}
 		} else {
 			if (action == RISE_TO) {
-				return ctx.getResources().getString( R.string.alert_rise_by,
+				return Long.toString( id)+ctx.getResources().getString( R.string.alert_rise_by,
 						String.format( Locale.getDefault(), "%.2f", amount ) );
 			} else if (action == FALL_TO) {
-				return ctx.getResources().getString( R.string.alert_fall_by,
+				return Long.toString( id)+ctx.getResources().getString( R.string.alert_fall_by,
 						String.format( Locale.getDefault(), "%.2f", amount ) );
 			} else {
-				return ctx.getResources().getString( R.string.alert_change_by,
+				return Long.toString( id)+ctx.getResources().getString( R.string.alert_change_by,
 						String.format( Locale.getDefault(), "%.2f", amount ) );
 			}
 		}

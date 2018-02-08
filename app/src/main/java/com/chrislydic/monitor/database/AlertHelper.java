@@ -71,7 +71,7 @@ public class AlertHelper {
 		}
 	}
 
-	public void addAlert( int action, double amount, long pairId, int type, int frequency ) {
+	public Alert addAlert( int action, double amount, long pairId, int type, int frequency ) {
 		ContentValues values = new ContentValues();
 		values.put( AlertDbSchema.Table.Cols.ACTION, action );
 		values.put( AlertDbSchema.Table.Cols.AMOUNT, amount );
@@ -80,7 +80,9 @@ public class AlertHelper {
 		values.put( AlertDbSchema.Table.Cols.PREVIOUS, -1d );
 		values.put( AlertDbSchema.Table.Cols.FREQUENCY, frequency );
 
-		mDatabase.insert( AlertDbSchema.Table.NAME, null, values );
+		long id = mDatabase.insert( AlertDbSchema.Table.NAME, null, values );
+
+		return new Alert( id, type, amount, -1d, action, pairId, frequency );
 	}
 
 	public void updatePrevious( long id, double previous ) {
