@@ -119,12 +119,12 @@ public class PairFragment extends Fragment {
 		adapter.notifyDataSetChanged();
 	}
 
-	private void newPair( final String fromSymbol, final String toSymbol ) {
+	private void newPair( final String fromSymbol, final String fromName, final String toSymbol ) {
 		priceCall = priceService.fetchPrice( fromSymbol, toSymbol );
 		priceCall.enqueue( new Callback<SimplePrice>() {
 			@Override
 			public void onResponse( Call<SimplePrice> call, Response<SimplePrice> response ) {
-				PairHelper.get( getContext() ).addPair( fromSymbol, toSymbol );
+				PairHelper.get( getContext() ).addPair( fromSymbol, fromName, toSymbol );
 
 				LayoutInflater inflater = getActivity().getLayoutInflater();
 				View layout = inflater.inflate(R.layout.toast_success,
@@ -197,6 +197,7 @@ public class PairFragment extends Fragment {
 			}
 
 			final String symbol = coins.get( position ).getSymbol();
+			final String name = coins.get( position ).getName();
 
 			holder.itemView.setOnClickListener( new View.OnClickListener() {
 				@Override
@@ -242,7 +243,7 @@ public class PairFragment extends Fragment {
 									} else if ( input.isEmpty() ) {
 										toSymbolInput.setError("Enter a Symbol");
 									} else {
-										newPair( symbol, input );
+										newPair( symbol, name, input );
 										alertDialog.dismiss();
 									}
 								}

@@ -21,6 +21,7 @@ public class MonitorBaseHelper extends SQLiteOpenHelper {
 		db.execSQL( "create table " + PairDbSchema.Table.NAME + "( " +
 				PairDbSchema.Table.Cols.ID + " integer primary key autoincrement, " +
 				PairDbSchema.Table.Cols.FSYM + " text, " +
+				PairDbSchema.Table.Cols.FNAME + " text, " +
 				PairDbSchema.Table.Cols.TSYM + " text, " +
 				PairDbSchema.Table.Cols.ORDER + " integer)" );
 
@@ -31,6 +32,8 @@ public class MonitorBaseHelper extends SQLiteOpenHelper {
 				AlertDbSchema.Table.Cols.ACTION + " integer, " +
 				AlertDbSchema.Table.Cols.PREVIOUS + " real, " +
 				AlertDbSchema.Table.Cols.FREQUENCY + " integer, " +
+				AlertDbSchema.Table.Cols.ENABLED + " integer DEFAULT 0, " +
+				AlertDbSchema.Table.Cols.ACTIVE + " integer DEFAULT 0, " +
 				AlertDbSchema.Table.Cols.PAIR + " integer, " +
 				"FOREIGN KEY(" + AlertDbSchema.Table.Cols.PAIR + ") REFERENCES " + PairDbSchema.Table.NAME + ")" );
 	}

@@ -17,9 +17,10 @@ public class PairCursorWrapper extends CursorWrapper {
 	public Pair getPair() {
 		long id = getLong( getColumnIndex( PairDbSchema.Table.Cols.ID ) );
 		String fromSymbol = getString( getColumnIndex( PairDbSchema.Table.Cols.FSYM ) );
+		String fromName = getString( getColumnIndex( PairDbSchema.Table.Cols.FNAME ) );
 		String toSymbol = getString( getColumnIndex( PairDbSchema.Table.Cols.TSYM ) );
 		int order = getInt( getColumnIndex( PairDbSchema.Table.Cols.ORDER ) );
 
-		return new Pair( id, fromSymbol, toSymbol, order );
+		return new Pair( id, fromSymbol, fromName, toSymbol, order );
 	}
 }

@@ -76,9 +76,10 @@ public class PairHelper {
 		}
 	}
 
-	public void addPair( String fromSymbol, String toSymbol ) {
+	public void addPair( String fromSymbol, String fromName, String toSymbol ) {
 		ContentValues values = new ContentValues();
 		values.put( PairDbSchema.Table.Cols.FSYM, fromSymbol );
+		values.put( PairDbSchema.Table.Cols.FNAME, fromName );
 		values.put( PairDbSchema.Table.Cols.TSYM, toSymbol );
 		values.put( PairDbSchema.Table.Cols.ORDER, 0 );
 

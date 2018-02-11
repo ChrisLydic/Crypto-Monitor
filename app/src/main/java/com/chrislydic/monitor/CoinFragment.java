@@ -64,7 +64,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  *
  */
 public class CoinFragment extends Fragment {
-	private static final String PRICE_ALERT_JOB = "com.chrislydic.monitor.pricealert";
+	public static final String PRICE_ALERT_JOB = "com.chrislydic.monitor.pricealert.";
 	private static final String SELECTED_HISTORY = "com.chrislydic.monitor.history";
 	private static final String COIN_TYPE = "ctype";
 	private static final int HISTORY_HOUR = 0;
@@ -429,8 +429,8 @@ public class CoinFragment extends Fragment {
 			priceCall.cancel();
 		}
 
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-		String exchangePref = sharedPref.getString("pref_exchange", getString( R.string.exchange_default ));
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences( getContext() );
+		String exchangePref = sharedPref.getString( "pref_exchange", getString( R.string.exchange_default ) );
 
 		priceCall = priceService.fetchPriceData( coinType.getFromSymbol(), coinType.getToSymbol(), exchangePref );
 
@@ -582,12 +582,10 @@ public class CoinFragment extends Fragment {
 	private void createPriceAlert( Alert alert ) {
 		FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( getContext() ) );
 
-		// cancel the price alert job if it is running
-		dispatcher.cancel( PRICE_ALERT_JOB );
-		dispatcher.cancelAll();
+		dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( alert.getId() ) );
 
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-		boolean syncOnDataPref = sharedPref.getBoolean("pref_use_data", false);
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences( getContext() );
+		boolean syncOnDataPref = sharedPref.getBoolean( "pref_use_data", false );
 
 		Bundle alertInfo = new Bundle();
 		alertInfo.putLong( PriceAlertService.ALERT_ARG, alert.getId() );
@@ -597,7 +595,7 @@ public class CoinFragment extends Fragment {
 		Job.Builder alertBuilder = dispatcher.newJobBuilder()
 				.setExtras( alertInfo )
 				.setService( PriceAlertService.class )
-				.setTag( String.valueOf( alert.getId() ) )
+				.setTag( PRICE_ALERT_JOB + String.valueOf( alert.getId() ) )
 				.setRecurring( true )
 				.setLifetime( Lifetime.FOREVER )
 				.setTrigger( Trigger.executionWindow( ( alert.getFrequency() * 60 ), alert.getFrequency() * 60 + 100 ) )
@@ -647,21 +645,59 @@ public class CoinFragment extends Fragment {
 
 			holder.value.setText( alert.getString( getContext() ) );
 
+			if ( !alert.isEnabled() ) {
+				holder.value.setTextColor(
+						ContextCompat.getColor( getContext(), R.color.colorLightGray ) );
+			} else {
+				holder.value.setTextColor(
+						ContextCompat.getColor( getContext(), R.color.colorBackground ) );
+			}
+
 			holder.menuButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
 					PopupMenu popup = new PopupMenu(getContext(), view);
 					popup.inflate( R.menu.menu_alert );
 
+					if ( alertList.get( holder.getAdapterPosition() ).isEnabled() ) {
+						popup.getMenu().findItem( R.id.item_alert_enable ).setVisible( false );
+					} else {
+						popup.getMenu().findItem( R.id.item_alert_disable ).setVisible( false );
+					}
+
 					popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 						@Override
 						public boolean onMenuItemClick(MenuItem item) {
 							switch (item.getItemId()) {
+								case R.id.item_alert_enable:
+									AlertHelper
+											.get( getContext() )
+											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), true );
+
+									alerts.get( holder.getAdapterPosition() ).setEnabled( true );
+									updateUI();
+
+									createPriceAlert( alerts.get( holder.getAdapterPosition() ) );
+
+									break;
+								case R.id.item_alert_disable:
+									AlertHelper
+											.get( getContext() )
+											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), false );
+
+									alerts.get( holder.getAdapterPosition() ).setEnabled( false );
+									updateUI();
+
+									FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( getContext() ) );
+									dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( alerts.get( holder.getAdapterPosition() ).getId() ) );
+
+									break;
 								case R.id.item_alert_delete:
 									AlertHelper
 											.get( getContext() )
 											.deleteAlert( alertList.get( holder.getAdapterPosition() ) );
-									alerts = AlertHelper.get( getContext() ).getAlerts( coinType );
+
+									alerts.remove( holder.getAdapterPosition() );
 									updateUI();
 									break;
 							}

@@ -2,6 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/item_alert_enable"
+        android:title="@string/item_alert_enable"
+        app:showAsAction="withText"
+        />
+    <item
+        android:id="@+id/item_alert_disable"
+        android:title="@string/item_alert_disable"
+        app:showAsAction="withText"
+        />
+    <item
         android:id="@+id/item_alert_delete"
         android:title="@string/item_alert_delete"
         app:showAsAction="withText"

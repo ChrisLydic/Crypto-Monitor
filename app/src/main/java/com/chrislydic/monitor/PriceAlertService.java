@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.chrislydic.monitor.database.AlertHelper;
@@ -19,6 +21,8 @@ import com.firebase.jobdispatcher.JobService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.Locale;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,7 +34,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class PriceAlertService extends JobService {
 	public static final String ALERT_ARG = "alert";
-	public static final String PAIR_ARG = "pair";
 	private static final String TAG = PriceAlertService.class.getSimpleName();
 	private static final int NOTIFICATION_ID = 1;
 	private JobParameters jobParams;
@@ -73,6 +76,9 @@ public class PriceAlertService extends JobService {
 		@Override
 		public void onResponse( Call<SimplePrice> call, Response<SimplePrice> response ) {
 			double price = response.body().getValue();
+			double percentChange = ( ( price - alert.getPrevious() ) / alert.getPrevious() ) * 100.0;
+			String priceDisplay = String.format( Locale.getDefault(), "%.2f", price );
+			String percentChangeDisplay = String.format( Locale.getDefault(), "%.2f", percentChange );
 			String description = null;
 
 			if (alert.getPrevious() != -1d) {
@@ -81,9 +87,9 @@ public class PriceAlertService extends JobService {
 						if ( price >= alert.getAmount() && alert.getPrevious() < alert.getAmount() ) {
 							description = getString(
 									R.string.price_alert_notification_description,
-									pair.getFromSymbol(),
+									pair.getFromName(),
 									getString( R.string.price_alert_notification_increased_to ),
-									price,
+									priceDisplay,
 									pair.getToSymbol()
 							);
 						}
@@ -93,23 +99,21 @@ public class PriceAlertService extends JobService {
 						if ( price <= alert.getAmount() && alert.getPrevious() > alert.getAmount() ) {
 							description = getString(
 									R.string.price_alert_notification_description,
-									pair.getFromSymbol(),
+									pair.getFromName(),
 									getString( R.string.price_alert_notification_decreased_to ),
-									price,
+									priceDisplay,
 									pair.getToSymbol()
 							);
 						}
 					}
 				} else {
-					double percentChange = ( ( price - alert.getPrevious() ) / alert.getPrevious() ) * 100.0;
-
 					if (alert.getAction() != Alert.FALL_TO && percentChange >= alert.getAmount() ) {
 						description = getString(
 								R.string.price_alert_notification_description_percent,
-								pair.getFromSymbol(),
+								pair.getFromName(),
 								getString( R.string.price_alert_notification_increased_by ),
-								percentChange,
-								price,
+								percentChangeDisplay,
+								priceDisplay,
 								pair.getToSymbol()
 						);
 					}
@@ -117,43 +121,65 @@ public class PriceAlertService extends JobService {
 					if (alert.getAction() != Alert.RISE_TO && (-1 * percentChange) >= alert.getAmount() ) {
 						description = getString(
 								R.string.price_alert_notification_description_percent,
-								pair.getFromSymbol(),
+								pair.getFromName(),
 								getString( R.string.price_alert_notification_decreased_by ),
-								percentChange,
-								price,
+								percentChangeDisplay,
+								priceDisplay,
 								pair.getToSymbol()
 						);
 					}
 				}
 			}
 
+			AlertHelper.get( getApplicationContext() ).updatePrevious( alert.getId(), price );
+
 			if (description != null) {
-				String title = getString( R.string.price_alert_notification_title );
+				String title = getString(
+						R.string.price_alert_notification_title,
+						pair,
+						String.format( Locale.getDefault(), "%.2f", price ),
+						percentChange > 0.0 ? "+" : "",
+						String.format( Locale.getDefault(), "%.2f", percentChange )
+					);
+				//TODO remove? String now = new SimpleDateFormat("ddHHmmss",  Locale.US).format(new Date());
 
 				// create a notification that will open the main activity when tapped
-				NotificationCompat.Builder mBuilder =
+				NotificationCompat.Builder builder =
 						new NotificationCompat.Builder( getApplicationContext() )
+								.setVisibility( NotificationCompat.VISIBILITY_PUBLIC )
+								.setVibrate( new long[] { 0, 500 } )
+								.setSound( Settings.System.DEFAULT_NOTIFICATION_URI )
+								.setAutoCancel( true )
 								.setSmallIcon( R.mipmap.ic_launcher )
 								.setContentTitle( title )
-								.setContentText( description );
+								.setStyle(new NotificationCompat.BigTextStyle()
+										.bigText(description));
 
 				Intent notificationIntent = new Intent( getApplicationContext(), MainActivity.class );
 
-				notificationIntent.setFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP
-						| Intent.FLAG_ACTIVITY_SINGLE_TOP );
+				TaskStackBuilder stackBuilder = TaskStackBuilder.create( getApplicationContext() );
+				stackBuilder.addParentStack(MainActivity.class);
+				stackBuilder.addNextIntent(notificationIntent);
+				PendingIntent resultPendingIntent =
+						stackBuilder.getPendingIntent(
+								0,
+								PendingIntent.FLAG_UPDATE_CURRENT
+						);
+				builder.setContentIntent(resultPendingIntent);
 
-				PendingIntent intent = PendingIntent
-						.getActivity( getApplicationContext(), 0, notificationIntent, 0 );
+				NotificationManager notificationManager =
+						(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-				mBuilder.setContentIntent( intent );
-
-				NotificationManager mNotifyMgr = (NotificationManager) getSystemService( NOTIFICATION_SERVICE );
-				mNotifyMgr.notify( NOTIFICATION_ID, mBuilder.build() );
+				notificationManager.notify(
+						"com.chrislydic.monitor." + alert.getId(),
+						NOTIFICATION_ID,
+						builder.build()
+					);
+			} else {
+				//jobFinished( jobParams, false ); end notification
 			}
 
-			AlertHelper.get( getApplicationContext() ).updatePrevious( alert.getId(), price );
-
-			jobFinished( jobParams, false );
+			jobFinished( jobParams, true );
 		}
 
 		@Override

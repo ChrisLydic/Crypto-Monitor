@@ -16,6 +16,8 @@ public class AlertDbSchema {
 			public static final String PAIR = "pair";
 			public static final String PREVIOUS = "previous";
 			public static final String FREQUENCY = "frequency";
+			public static final String ENABLED = "enabled";
+			public static final String ACTIVE = "active";
 		}
 	}
 }

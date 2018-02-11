@@ -9,12 +9,14 @@ import java.io.Serializable;
 public class Pair implements Serializable {
 	private long id;
 	private String fromSymbol;
+	private String fromName;
 	private String toSymbol;
 	private int order;
 
-	public Pair( long id, String fromSymbol, String toSymbol, int order ) {
+	public Pair( long id, String fromSymbol, String fromName, String toSymbol, int order ) {
 		this.id = id;
 		this.fromSymbol = fromSymbol;
+		this.fromName = fromName;
 		this.toSymbol = toSymbol;
 		this.order = order;
 	}
@@ -29,6 +31,10 @@ public class Pair implements Serializable {
 
 	public String getFromSymbol() {
 		return fromSymbol;
+	}
+
+	public String getFromName() {
+		return fromName;
 	}
 
 	public String getToSymbol() {

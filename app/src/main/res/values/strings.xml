@@ -30,15 +30,16 @@
     <string name="delete_pair_title">Delete Pair</string>
     <string name="delete_pait_message">Really delete %s?</string>
 
-    <string name="item_alert_edit">Edit</string>
+    <string name="item_alert_enable">Enable</string>
+    <string name="item_alert_disable">Disable</string>
     <string name="item_alert_delete">Remove</string>
 
-    <string name="alert_fall_to">Fall to %s</string>
-    <string name="alert_rise_to">Rise to %s</string>
-    <string name="alert_fall_by">Fall by %s%%</string>
-    <string name="alert_rise_by">Rise by %s%%</string>
-    <string name="alert_change_to">Change to %s</string>
-    <string name="alert_change_by">Change by %s%%</string>
+    <string name="alert_fall_to">Fall to %1$s (%2$d minutes)</string>
+    <string name="alert_rise_to">Rise to %1$s (%2$d minutes)</string>
+    <string name="alert_fall_by">Fall by %1$s%% (%2$d minutes)</string>
+    <string name="alert_rise_by">Rise by %1$s%% (%2$d minutes)</string>
+    <string name="alert_change_to">Change to %1$s (%2$d minutes)</string>
+    <string name="alert_change_by">Change by %1$s%% (%2$d minutes)</string>
 
     <string name="price">XX</string>
     <string name="percent">+X%</string>
@@ -53,9 +54,9 @@
     <string name="saved_price_file">pricefile</string>
     <string name="saved_price_alert">price</string>
 
-    <string name="price_alert_notification_title">Price Alert!</string>
-    <string name="price_alert_notification_description">The price of %1$s has %2$s %3$f %4$s.</string>
-    <string name="price_alert_notification_description_percent">The price of %1$s has %2$s %3$f%% to %4$f %5$s.</string>
+    <string name="price_alert_notification_title">(%1$s) %2$s %3$s%4$s%%</string>
+    <string name="price_alert_notification_description">The price of %1$s has %2$s %3$s %4$s.</string>
+    <string name="price_alert_notification_description_percent">The price of %1$s has %2$s %3$s%% to %4$s %5$s.</string>
     <string name="price_alert_notification_increased_to">increased to</string>
     <string name="price_alert_notification_decreased_to">decreased to</string>
     <string name="price_alert_notification_increased_by">increased by</string>

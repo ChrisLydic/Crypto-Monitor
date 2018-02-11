@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.chrislydic.monitor.Alert;
+import com.chrislydic.monitor.CoinFragment;
 import com.chrislydic.monitor.Pair;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
@@ -79,6 +80,8 @@ public class AlertHelper {
 		values.put( AlertDbSchema.Table.Cols.TYPE, type );
 		values.put( AlertDbSchema.Table.Cols.PREVIOUS, -1d );
 		values.put( AlertDbSchema.Table.Cols.FREQUENCY, frequency );
+		values.put( AlertDbSchema.Table.Cols.ENABLED, true );
+		values.put( AlertDbSchema.Table.Cols.ACTIVE, false );
 
 		long id = mDatabase.insert( AlertDbSchema.Table.NAME, null, values );
 
@@ -95,10 +98,30 @@ public class AlertHelper {
 				new String[]{ Long.toString( id ) } );
 	}
 
+	public void updateEnabled( long id, boolean enabled ) {
+		ContentValues values = new ContentValues();
+		values.put( AlertDbSchema.Table.Cols.ENABLED, enabled ? 1 : 0 );
+
+		mDatabase.update( AlertDbSchema.Table.NAME,
+				values,
+				AlertDbSchema.Table.Cols.ID + " = ?",
+				new String[]{ Long.toString( id ) } );
+	}
+
+	public void updateActive( long id, boolean active ) {
+		ContentValues values = new ContentValues();
+		values.put( AlertDbSchema.Table.Cols.ACTIVE, active ? 1 : 0 );
+
+		mDatabase.update( AlertDbSchema.Table.NAME,
+				values,
+				AlertDbSchema.Table.Cols.ID + " = ?",
+				new String[]{ Long.toString( id ) } );
+	}
+
 	public void deleteAlert( Alert alert ) {
 		FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( mContext ) );
 		// cancel the price alert job if it is running
-		dispatcher.cancel( String.valueOf( alert.getId() ) );
+		dispatcher.cancel( CoinFragment.PRICE_ALERT_JOB + String.valueOf( alert.getId() ) );
 
 		mDatabase.delete( AlertDbSchema.Table.NAME,
 				AlertDbSchema.Table.Cols.ID + " = ?",

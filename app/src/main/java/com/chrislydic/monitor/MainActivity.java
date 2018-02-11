@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
 		List<Pair> tabitems = PairHelper.get( this ).getPairs();
 		if (tabitems.isEmpty()) {
-			PairHelper.get( this ).addPair( "BTC", "USD" );
+			PairHelper.get( this ).addPair( "BTC", "Bitcoin", "USD" );
 			tabitems = PairHelper.get( this ).getPairs();
 		}
 
