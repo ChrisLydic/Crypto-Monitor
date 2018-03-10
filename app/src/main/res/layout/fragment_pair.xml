@@ -1,5 +1,24 @@
-<android.support.v7.widget.RecyclerView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/coin_recycler_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/search_coin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/colorBackground"
+        android:textColorHint="@color/colorLightGray"
+        android:hint="@string/search_hint"
+        android:inputType="text"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/coin_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>

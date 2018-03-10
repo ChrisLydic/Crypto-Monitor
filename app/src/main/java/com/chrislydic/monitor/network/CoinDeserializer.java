@@ -1,7 +1,5 @@
 package com.chrislydic.monitor.network;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -10,7 +8,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -62,7 +59,7 @@ public class CoinDeserializer implements JsonDeserializer<CoinList>
 			}
 		}
 
-		newCoinList.sortCoins();
+		newCoinList.sort();
 
 		return newCoinList;
 	}

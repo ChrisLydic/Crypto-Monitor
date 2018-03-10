@@ -88,6 +88,7 @@ public class CoinFragment extends Fragment {
 	private Unbinder unbinder;
 	private Pair coinType;
 	private int selectedHistory;
+	private double currentPrice;
 
 	private List<Alert> alerts;
 	private AlertAdapter adapter;
@@ -112,6 +113,8 @@ public class CoinFragment extends Fragment {
 		if ( getArguments() != null ) {
 			coinType = (Pair) getArguments().getSerializable( COIN_TYPE );
 		}
+
+		currentPrice = -1d;
 
 		Gson gson =
 				new GsonBuilder()
@@ -209,23 +212,16 @@ public class CoinFragment extends Fragment {
 									alertValue.setError("Enter a value");
 								} else {
 									String frequency = frequencySpinner.getSelectedItem().toString();
-									int frequencyValue = 60;
+									int frequencyValue = 3600;
 									int alertType = Alert.PRICE_VALUE;
 									int alertDirection = Alert.RISE_TO;
+									String[] frequencies = getResources().getStringArray( R.array.frequencies );
 
-									switch ( frequency ) {
-										case "10 minutes":
-											frequencyValue = 10;
+									for ( int i = 0; i < frequencies.length; i++ ) {
+										if ( frequencies[i].equals( frequency ) ) {
+											frequencyValue = Alert.FREQ_VALUES[i];
 											break;
-										case "15 minutes":
-											frequencyValue = 15;
-											break;
-										case "30 minutes":
-											frequencyValue = 30;
-											break;
-										case "45 minutes":
-											frequencyValue = 45;
-											break;
+										}
 									}
 
 									if ( typeRadioGroup.getCheckedRadioButtonId() == R.id.percent_option ) {
@@ -239,8 +235,15 @@ public class CoinFragment extends Fragment {
 
 									Alert alert = AlertHelper
 											.get( getContext() )
-											.addAlert( alertDirection, Double.parseDouble( input ), coinType.getId(), alertType, frequencyValue );
-
+											.addAlert(
+												alertDirection,
+												Double.parseDouble( input ),
+												coinType.getId(),
+												alertType,
+												frequencyValue,
+												currentPrice
+											);
+// TODO handle double parse error
 									createPriceAlert(alert);
 									alerts.add( alert );
 									updateUI();
@@ -363,8 +366,6 @@ public class CoinFragment extends Fragment {
 			}
 		} );
 
-		updatePriceData();
-
 		priceChart.getAxisRight().setEnabled( false );
 		priceChart.getAxisLeft().setTextSize( 12 );
 		priceChart.getAxisLeft().setTextColor( ContextCompat.getColor( getContext(), R.color.colorBackground ) );
@@ -394,6 +395,8 @@ public class CoinFragment extends Fragment {
 		} else {
 			priceChart.getXAxis().setValueFormatter( new DateFormatterDay() );
 		}
+
+		updatePriceData();
 
 		return view;
 	}
@@ -454,6 +457,7 @@ public class CoinFragment extends Fragment {
 				if (response.body() == null) {return;}
 				final double price = response.body().price;
 				priceText.setText( NumberFormat.getNumberInstance( Locale.getDefault() ).format( price ) );
+				currentPrice = price;
 
 				historyCall.enqueue( new Callback<History>() {
 					@Override
@@ -593,12 +597,13 @@ public class CoinFragment extends Fragment {
 		// create a price alert job that is recurring, lasts forever (until this app kills it),
 		//   and runs every x minutes provided there is network access
 		Job.Builder alertBuilder = dispatcher.newJobBuilder()
-				.setExtras( alertInfo )
 				.setService( PriceAlertService.class )
 				.setTag( PRICE_ALERT_JOB + String.valueOf( alert.getId() ) )
 				.setRecurring( true )
 				.setLifetime( Lifetime.FOREVER )
-				.setTrigger( Trigger.executionWindow( ( alert.getFrequency() * 60 ), alert.getFrequency() * 60 + 100 ) )
+				.setExtras( alertInfo )
+				.setTrigger(
+					Trigger.executionWindow( alert.getFrequency(), alert.getFrequency() + 60 ) )
 				.setReplaceCurrent( true )
 				.setRetryStrategy( RetryStrategy.DEFAULT_LINEAR )
 				.setConstraints(
@@ -675,10 +680,9 @@ public class CoinFragment extends Fragment {
 											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), true );
 
 									alerts.get( holder.getAdapterPosition() ).setEnabled( true );
-									updateUI();
-
 									createPriceAlert( alerts.get( holder.getAdapterPosition() ) );
 
+									updateUI();
 									break;
 								case R.id.item_alert_disable:
 									AlertHelper
@@ -686,11 +690,11 @@ public class CoinFragment extends Fragment {
 											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), false );
 
 									alerts.get( holder.getAdapterPosition() ).setEnabled( false );
-									updateUI();
 
 									FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( getContext() ) );
 									dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( alerts.get( holder.getAdapterPosition() ).getId() ) );
 
+									updateUI();
 									break;
 								case R.id.item_alert_delete:
 									AlertHelper

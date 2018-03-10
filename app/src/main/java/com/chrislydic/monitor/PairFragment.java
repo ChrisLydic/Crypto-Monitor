@@ -6,11 +6,14 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,6 +35,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -47,8 +51,11 @@ public class PairFragment extends Fragment {
 	private Call<CoinList> coinListCall;
 	private Call<SimplePrice> priceCall;
 
+	@BindView(R.id.search_coin) protected EditText searchCoin;
 	private CoinList coinList;
 	private CoinAdapter adapter;
+
+	private Unbinder unbinder;
 
 	public PairFragment() {
 	}
@@ -75,6 +82,7 @@ public class PairFragment extends Fragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container,
 	                          Bundle savedInstanceState ) {
 		View view = inflater.inflate(R.layout.fragment_pair, container, false);
+		unbinder = ButterKnife.bind(this, view);
 
 		adapter = new CoinAdapter( new ArrayList<Coin>() );
 
@@ -96,12 +104,31 @@ public class PairFragment extends Fragment {
 			}
 		} );
 
+		searchCoin.addTextChangedListener( new TextWatcher() {
+			@Override
+			public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
+
+			}
+
+			@Override
+			public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
+				coinList.filter(charSequence.toString());
+				updateUI();
+			}
+
+			@Override
+			public void afterTextChanged( Editable editable ) {
+
+			}
+		} );
+
 		return view;
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
+		unbinder.unbind();
 
 		if ( priceCall != null ) {
 			priceCall.cancel();
