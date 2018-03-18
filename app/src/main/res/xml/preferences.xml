@@ -5,6 +5,7 @@
         android:title="@string/use_data"
         android:summary="@string/use_data_description"
         android:defaultValue="false" />
+    <!-- todo ENABLE THIS ONCE I FIGURE OUT HOW TO HANDLE EXCHANGES THAT ARE MISSING PAIRS
     <ListPreference
         android:key="pref_exchange"
         android:title="@string/exchange_select"
@@ -12,5 +13,5 @@
         android:dialogTitle="@string/exchange_select"
         android:entries="@array/exchanges"
         android:entryValues="@array/exchanges"
-        android:defaultValue="@string/exchange_default" />
+        android:defaultValue="@string/exchange_default" /> -->
 </PreferenceScreen>

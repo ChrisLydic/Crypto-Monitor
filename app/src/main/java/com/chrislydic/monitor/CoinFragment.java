@@ -88,6 +88,7 @@ public class CoinFragment extends Fragment {
 	private Unbinder unbinder;
 	private Pair coinType;
 	private int selectedHistory;
+	private double currentPrice;
 
 	private List<Alert> alerts;
 	private AlertAdapter adapter;
@@ -112,6 +113,8 @@ public class CoinFragment extends Fragment {
 		if ( getArguments() != null ) {
 			coinType = (Pair) getArguments().getSerializable( COIN_TYPE );
 		}
+
+		currentPrice = -1d;
 
 		Gson gson =
 				new GsonBuilder()
@@ -140,118 +143,7 @@ public class CoinFragment extends Fragment {
 		mOrderRecyclerView.setLayoutManager( new LinearLayoutManager( getContext() ) );
 		mOrderRecyclerView.setAdapter( adapter );
 
-		createAlert.setOnClickListener( new View.OnClickListener() {
-			public void onClick(View v) {
-				LayoutInflater li = LayoutInflater.from( getContext() );
-				View promptsView = li.inflate( R.layout.alert_prompt, null );
-
-				AlertDialog.Builder alertDialogBuilder =
-						new AlertDialog.Builder( getContext() );
-				alertDialogBuilder.setView( promptsView );
-				alertDialogBuilder.setCancelable( false );
-
-				final TextView alertActionText = (TextView) promptsView
-						.findViewById( R.id.alert_value_action );
-				final TextView alertTypeText = (TextView) promptsView
-						.findViewById( R.id.alert_value_type );
-				final RadioGroup typeRadioGroup = (RadioGroup) promptsView
-						.findViewById( R.id.type_buttons );
-				final RadioGroup actionRadioGroup = (RadioGroup) promptsView
-						.findViewById( R.id.action_buttons );
-				final EditText alertValue = (EditText) promptsView
-						.findViewById( R.id.alert_value_input );
-				final Spinner frequencySpinner = (Spinner) promptsView
-						.findViewById( R.id.alert_frequency );
-
-				actionRadioGroup.setOnCheckedChangeListener( new RadioGroup.OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged( RadioGroup radioGroup, @IdRes int i ) {
-						if ( i == R.id.rise_option ) {
-							alertActionText.setText( R.string.enter_value_rise_action );
-						} else if ( i == R.id.fall_option ) {
-							alertActionText.setText( R.string.enter_value_fall_action );
-						} else {
-							alertActionText.setText( R.string.enter_value_change_action );
-						}
-					}
-				} );
-				typeRadioGroup.setOnCheckedChangeListener( new RadioGroup.OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged( RadioGroup radioGroup, @IdRes int i ) {
-						if ( i == R.id.price_option ) {
-							alertTypeText.setText( R.string.enter_value_price_type );
-						} else {
-							alertTypeText.setText( R.string.enter_value_percent_type );
-						}
-					}
-				} );
-
-				alertDialogBuilder.setPositiveButton( "OK", null );
-
-				alertDialogBuilder.setNegativeButton(
-						"Cancel",
-						new DialogInterface.OnClickListener() {
-							public void onClick( DialogInterface dialog, int id ) {
-								dialog.cancel();
-							}
-						} );
-
-				final AlertDialog alertDialog = alertDialogBuilder.create();
-				alertDialog.show();
-
-				// alert dialog hack to avoid being dismissed when input is invalid
-				alertDialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener(
-						new View.OnClickListener() {
-							public void onClick(View onClick) {
-								String input = alertValue.getText().toString().trim();
-
-								if ( input.isEmpty() ) {
-									alertValue.setError("Enter a value");
-								} else {
-									String frequency = frequencySpinner.getSelectedItem().toString();
-									int frequencyValue = 60;
-									int alertType = Alert.PRICE_VALUE;
-									int alertDirection = Alert.RISE_TO;
-
-									switch ( frequency ) {
-										case "10 minutes":
-											frequencyValue = 10;
-											break;
-										case "15 minutes":
-											frequencyValue = 15;
-											break;
-										case "30 minutes":
-											frequencyValue = 30;
-											break;
-										case "45 minutes":
-											frequencyValue = 45;
-											break;
-									}
-
-									if ( typeRadioGroup.getCheckedRadioButtonId() == R.id.percent_option ) {
-										alertType = Alert.PERCENT_VALUE;
-									}
-									if ( actionRadioGroup.getCheckedRadioButtonId() == R.id.fall_option ) {
-										alertDirection = Alert.FALL_TO;
-									} else if ( actionRadioGroup.getCheckedRadioButtonId() == R.id.change_option ) {
-										alertDirection = Alert.CHANGE_TO;
-									}
-
-									Alert alert = AlertHelper
-											.get( getContext() )
-											.addAlert( alertDirection, Double.parseDouble( input ), coinType.getId(), alertType, frequencyValue );
-
-									createPriceAlert(alert);
-									alerts.add( alert );
-									updateUI();
-
-									alertDialog.dismiss();
-								}
-							}
-						}
-				);
-			}
-		} );
+		createAlert.setOnClickListener( new AlertDialogListener() );
 
 		selectedHistory = HISTORY_DAY;
 		if (savedInstanceState != null) {
@@ -363,8 +255,6 @@ public class CoinFragment extends Fragment {
 			}
 		} );
 
-		updatePriceData();
-
 		priceChart.getAxisRight().setEnabled( false );
 		priceChart.getAxisLeft().setTextSize( 12 );
 		priceChart.getAxisLeft().setTextColor( ContextCompat.getColor( getContext(), R.color.colorBackground ) );
@@ -394,6 +284,8 @@ public class CoinFragment extends Fragment {
 		} else {
 			priceChart.getXAxis().setValueFormatter( new DateFormatterDay() );
 		}
+
+		updatePriceData();
 
 		return view;
 	}
@@ -454,6 +346,7 @@ public class CoinFragment extends Fragment {
 				if (response.body() == null) {return;}
 				final double price = response.body().price;
 				priceText.setText( NumberFormat.getNumberInstance( Locale.getDefault() ).format( price ) );
+				currentPrice = price;
 
 				historyCall.enqueue( new Callback<History>() {
 					@Override
@@ -472,12 +365,12 @@ public class CoinFragment extends Fragment {
 						priceChart.getAxisLeft().setAxisMinimum(historyData.getYMin());
 						priceChart.getAxisLeft().setAxisMaximum(historyData.getYMax());
 
-						if ( selectedHistory == HISTORY_ALL ) {
+						double oldPrice = response.body().getEntries().get( 0 ).getY();
+
+						if ( selectedHistory == HISTORY_ALL || oldPrice == 0 ) {
 							percentText.setVisibility( View.GONE );
 						} else {
 							percentText.setVisibility( View.VISIBLE );
-
-							double oldPrice = response.body().getEntries().get( 0 ).getY();
 							double percentChange = ( ( price - oldPrice ) / oldPrice ) * 100.0;
 
 							percentText.setText( String.format(
@@ -593,12 +486,13 @@ public class CoinFragment extends Fragment {
 		// create a price alert job that is recurring, lasts forever (until this app kills it),
 		//   and runs every x minutes provided there is network access
 		Job.Builder alertBuilder = dispatcher.newJobBuilder()
-				.setExtras( alertInfo )
 				.setService( PriceAlertService.class )
 				.setTag( PRICE_ALERT_JOB + String.valueOf( alert.getId() ) )
 				.setRecurring( true )
 				.setLifetime( Lifetime.FOREVER )
-				.setTrigger( Trigger.executionWindow( ( alert.getFrequency() * 60 ), alert.getFrequency() * 60 + 100 ) )
+				.setExtras( alertInfo )
+				.setTrigger(
+					Trigger.executionWindow( alert.getFrequency(), alert.getFrequency() + 60 ) )
 				.setReplaceCurrent( true )
 				.setRetryStrategy( RetryStrategy.DEFAULT_LINEAR )
 				.setConstraints(
@@ -675,10 +569,9 @@ public class CoinFragment extends Fragment {
 											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), true );
 
 									alerts.get( holder.getAdapterPosition() ).setEnabled( true );
-									updateUI();
-
 									createPriceAlert( alerts.get( holder.getAdapterPosition() ) );
 
+									updateUI();
 									break;
 								case R.id.item_alert_disable:
 									AlertHelper
@@ -686,11 +579,11 @@ public class CoinFragment extends Fragment {
 											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), false );
 
 									alerts.get( holder.getAdapterPosition() ).setEnabled( false );
-									updateUI();
 
 									FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( getContext() ) );
 									dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( alerts.get( holder.getAdapterPosition() ).getId() ) );
 
+									updateUI();
 									break;
 								case R.id.item_alert_delete:
 									AlertHelper
@@ -717,6 +610,119 @@ public class CoinFragment extends Fragment {
 
 		public void setAlerts( List<Alert> alertList ) {
 			this.alertList = alertList;
+		}
+	}
+
+	private class AlertDialogListener implements View.OnClickListener {
+		public void onClick(View v) {
+			LayoutInflater li = LayoutInflater.from( getContext() );
+			View promptsView = li.inflate( R.layout.alert_prompt, null );
+
+			AlertDialog.Builder alertDialogBuilder =
+					new AlertDialog.Builder( getContext() );
+			alertDialogBuilder.setView( promptsView );
+			alertDialogBuilder.setCancelable( false );
+
+			final TextView alertActionText = (TextView) promptsView
+					.findViewById( R.id.alert_value_action );
+			final TextView alertTypeText = (TextView) promptsView
+					.findViewById( R.id.alert_value_type );
+			final RadioGroup typeRadioGroup = (RadioGroup) promptsView
+					.findViewById( R.id.type_buttons );
+			final RadioGroup actionRadioGroup = (RadioGroup) promptsView
+					.findViewById( R.id.action_buttons );
+			final EditText alertValue = (EditText) promptsView
+					.findViewById( R.id.alert_value_input );
+			final Spinner frequencySpinner = (Spinner) promptsView
+					.findViewById( R.id.alert_frequency );
+
+			actionRadioGroup.setOnCheckedChangeListener( new RadioGroup.OnCheckedChangeListener() {
+				@Override
+				public void onCheckedChanged( RadioGroup radioGroup, @IdRes int i ) {
+					if ( i == R.id.rise_option ) {
+						alertActionText.setText( R.string.enter_value_rise_action );
+					} else if ( i == R.id.fall_option ) {
+						alertActionText.setText( R.string.enter_value_fall_action );
+					} else {
+						alertActionText.setText( R.string.enter_value_change_action );
+					}
+				}
+			} );
+			typeRadioGroup.setOnCheckedChangeListener( new RadioGroup.OnCheckedChangeListener() {
+				@Override
+				public void onCheckedChanged( RadioGroup radioGroup, @IdRes int i ) {
+					if ( i == R.id.price_option ) {
+						alertTypeText.setText( R.string.enter_value_price_type );
+					} else {
+						alertTypeText.setText( R.string.enter_value_percent_type );
+					}
+				}
+			} );
+
+			alertDialogBuilder.setPositiveButton( "OK", null );
+
+			alertDialogBuilder.setNegativeButton(
+					"Cancel",
+					new DialogInterface.OnClickListener() {
+						public void onClick( DialogInterface dialog, int id ) {
+							dialog.cancel();
+						}
+					} );
+
+			final AlertDialog alertDialog = alertDialogBuilder.create();
+			alertDialog.show();
+
+			// alert dialog hack to avoid being dismissed when input is invalid
+			alertDialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener(
+					new View.OnClickListener() {
+						public void onClick(View onClick) {
+							String input = alertValue.getText().toString().trim();
+
+							if ( input.isEmpty() ) {
+								alertValue.setError("Enter a value");
+							} else {
+								String frequency = frequencySpinner.getSelectedItem().toString();
+								int frequencyValue = 3600;
+								int alertType = Alert.PRICE_VALUE;
+								int alertDirection = Alert.RISE_TO;
+								String[] frequencies = getResources().getStringArray( R.array.frequencies );
+
+								for ( int i = 0; i < frequencies.length; i++ ) {
+									if ( frequencies[i].equals( frequency ) ) {
+										frequencyValue = Alert.FREQ_VALUES[i];
+										break;
+									}
+								}
+
+								if ( typeRadioGroup.getCheckedRadioButtonId() == R.id.percent_option ) {
+									alertType = Alert.PERCENT_VALUE;
+								}
+								if ( actionRadioGroup.getCheckedRadioButtonId() == R.id.fall_option ) {
+									alertDirection = Alert.FALL_TO;
+								} else if ( actionRadioGroup.getCheckedRadioButtonId() == R.id.change_option ) {
+									alertDirection = Alert.CHANGE_TO;
+								}
+
+								Alert alert = AlertHelper
+										.get( getContext() )
+										.addAlert(
+												alertDirection,
+												Double.parseDouble( input ),
+												coinType.getId(),
+												alertType,
+												frequencyValue,
+												currentPrice
+										);
+// TODO handle double parse error
+								createPriceAlert(alert);
+								alerts.add( alert );
+								updateUI();
+
+								alertDialog.dismiss();
+							}
+						}
+					}
+			);
 		}
 	}
 }

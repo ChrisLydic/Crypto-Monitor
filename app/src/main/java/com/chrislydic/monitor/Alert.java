@@ -9,6 +9,7 @@ import java.util.Locale;
  * An entry in an order book.
  */
 public class Alert implements Serializable {
+	public static final int[] FREQ_VALUES = new int[]{300, 60, 900, 1800, 3600, 10800, 21600, 43200, 86400};
 	public static final int RISE_TO = 0;
 	public static final int FALL_TO = 1;
 	public static final int CHANGE_TO = 2;
@@ -41,24 +42,34 @@ public class Alert implements Serializable {
 	}
 
 	public String getString( Context ctx ) {
+		String[] frequencies = ctx.getResources().getStringArray( R.array.frequencies );
+		String time = "1 hour";
+
+		for ( int i = 0; i < Alert.FREQ_VALUES.length; i++ ) {
+			if ( Alert.FREQ_VALUES[i] == frequency ) {
+				time = frequencies[i];
+				break;
+			}
+		}
+
 		if (type == PRICE_VALUE) {
 			if (action == RISE_TO) {
 				return ctx.getResources().getString(
 						R.string.alert_rise_to,
 						String.format( Locale.getDefault(), "%.2f", amount ),
-						frequency
+						time
 				);
 			} else if (action == FALL_TO) {
 				return ctx.getResources().getString(
 						R.string.alert_fall_to,
 						String.format( Locale.getDefault(), "%.2f", amount ),
-						frequency
+						time
 				);
 			} else {
 				return ctx.getResources().getString(
 						R.string.alert_change_to,
 						String.format( Locale.getDefault(), "%.2f", amount ),
-						frequency
+						time
 				);
 			}
 		} else {
@@ -66,19 +77,19 @@ public class Alert implements Serializable {
 				return ctx.getResources().getString(
 						R.string.alert_rise_by,
 						String.format( Locale.getDefault(), "%.2f", amount ),
-						frequency
+						time
 				);
 			} else if (action == FALL_TO) {
 				return ctx.getResources().getString(
 						R.string.alert_fall_by,
 						String.format( Locale.getDefault(), "%.2f", amount ),
-						frequency
+						time
 				);
 			} else {
 				return ctx.getResources().getString(
 						R.string.alert_change_by,
 						String.format( Locale.getDefault(), "%.2f", amount ),
-						frequency
+						time
 				);
 			}
 		}

@@ -34,6 +34,7 @@
         <item name="android:textColorPrimary">@color/colorBackground</item>
         <item name="android:textColorSecondary">@color/colorLightGray</item>
 
+        <item name="android:alertDialogStyle">@style/AlertDialogTheme</item>
         <item name="android:alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="android:dialogTheme">@style/DialogTheme</item>
     </style>

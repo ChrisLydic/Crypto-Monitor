@@ -72,13 +72,13 @@ public class AlertHelper {
 		}
 	}
 
-	public Alert addAlert( int action, double amount, long pairId, int type, int frequency ) {
+	public Alert addAlert( int action, double amount, long pairId, int type, int frequency, double previous ) {
 		ContentValues values = new ContentValues();
 		values.put( AlertDbSchema.Table.Cols.ACTION, action );
 		values.put( AlertDbSchema.Table.Cols.AMOUNT, amount );
 		values.put( AlertDbSchema.Table.Cols.PAIR, pairId );
 		values.put( AlertDbSchema.Table.Cols.TYPE, type );
-		values.put( AlertDbSchema.Table.Cols.PREVIOUS, -1d );
+		values.put( AlertDbSchema.Table.Cols.PREVIOUS, previous );
 		values.put( AlertDbSchema.Table.Cols.FREQUENCY, frequency );
 		values.put( AlertDbSchema.Table.Cols.ENABLED, true );
 		values.put( AlertDbSchema.Table.Cols.ACTIVE, false );
