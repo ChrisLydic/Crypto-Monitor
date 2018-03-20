@@ -568,6 +568,10 @@ public class CoinFragment extends Fragment {
 											.get( getContext() )
 											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), true );
 
+									AlertHelper
+											.get( getContext() )
+											.updatePrevious( alertList.get( holder.getAdapterPosition() ).getId(), -1d );
+
 									alerts.get( holder.getAdapterPosition() ).setEnabled( true );
 									createPriceAlert( alerts.get( holder.getAdapterPosition() ) );
 
