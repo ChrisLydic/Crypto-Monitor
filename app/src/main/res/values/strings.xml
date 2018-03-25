@@ -49,6 +49,7 @@
     <string name="day">Day</string>
     <string name="week">Week</string>
     <string name="month">Mo</string>
+    <string name="month_large">Month</string>
     <string name="year">Year</string>
     <string name="all_time">all</string>
 

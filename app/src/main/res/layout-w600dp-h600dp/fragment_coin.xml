@@ -72,7 +72,7 @@
                             style="@style/ColorButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="0"
                             android:text="@string/hour"/>
 
                         <Button
@@ -80,7 +80,7 @@
                             style="@style/ColorButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="0"
                             android:text="@string/day"/>
 
                         <Button
@@ -88,7 +88,7 @@
                             style="@style/ColorButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="0"
                             android:text="@string/week"/>
 
                         <Button
@@ -96,15 +96,15 @@
                             style="@style/ColorButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/month"/>
+                            android:layout_weight="0"
+                            android:text="@string/month_large"/>
 
                         <Button
                             android:id="@+id/toggleYear"
                             style="@style/ColorButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="0"
                             android:text="@string/year"/>
 
                         <Button
@@ -112,7 +112,7 @@
                             style="@style/ColorButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="0"
                             android:text="@string/all_time"/>
                     </LinearLayout>
 

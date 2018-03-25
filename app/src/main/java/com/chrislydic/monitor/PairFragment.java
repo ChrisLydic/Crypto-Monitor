@@ -8,6 +8,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -52,6 +53,7 @@ public class PairFragment extends Fragment {
 	private Call<SimplePrice> priceCall;
 
 	@BindView(R.id.search_coin) protected EditText searchCoin;
+	private TextWatcher searchWatcher;
 	private CoinList coinList;
 	private CoinAdapter adapter;
 
@@ -86,8 +88,12 @@ public class PairFragment extends Fragment {
 
 		adapter = new CoinAdapter( new ArrayList<Coin>() );
 
+		DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+		float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+		int noOfColumns = (int) (dpWidth / 120);
+
 		RecyclerView mOrderRecyclerView = (RecyclerView) view.findViewById( R.id.coin_recycler_view );
-		mOrderRecyclerView.setLayoutManager( new GridLayoutManager( getContext(), 3 ) );
+		mOrderRecyclerView.setLayoutManager( new GridLayoutManager( getContext(), noOfColumns ) );
 		mOrderRecyclerView.setAdapter( adapter );
 
 		coinListCall = priceService.fetchCoinList();
@@ -104,7 +110,7 @@ public class PairFragment extends Fragment {
 			}
 		} );
 
-		searchCoin.addTextChangedListener( new TextWatcher() {
+		searchWatcher = new TextWatcher() {
 			@Override
 			public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
 
@@ -112,15 +118,19 @@ public class PairFragment extends Fragment {
 
 			@Override
 			public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
-				coinList.filter(charSequence.toString());
-				updateUI();
+				if (coinList != null) {
+					coinList.filter( charSequence.toString() );
+					updateUI();
+				}
 			}
 
 			@Override
 			public void afterTextChanged( Editable editable ) {
 
 			}
-		} );
+		};
+
+		searchCoin.addTextChangedListener( searchWatcher );
 
 		return view;
 	}
@@ -128,6 +138,7 @@ public class PairFragment extends Fragment {
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
+		searchCoin.removeTextChangedListener( searchWatcher );
 		unbinder.unbind();
 
 		if ( priceCall != null ) {

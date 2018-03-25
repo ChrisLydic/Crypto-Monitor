@@ -74,17 +74,25 @@ public class CoinFragment extends Fragment {
 	private static final int HISTORY_YEAR = 4;
 	private static final int HISTORY_ALL = 5;
 	private CryptoCompareAPI priceService;
-	@BindView(R.id.price) protected TextView priceText;
-	@BindView(R.id.percent) protected TextView percentText;
-	@BindView(R.id.toggleHour) protected Button toggleHour;
-	@BindView(R.id.toggleDay) protected Button toggleDay;
-	@BindView(R.id.toggleWeek) protected Button toggleWeek;
-	@BindView(R.id.toggleMonth) protected Button toggleMonth;
-	@BindView(R.id.toggleYear) protected Button toggleYear;
-	@BindView(R.id.toggleAll) protected Button toggleAll;
-	@BindView(R.id.create_alert) protected Button createAlert;
+	@BindView( R.id.price )
+	protected TextView priceText;
+	@BindView( R.id.percent )
+	protected TextView percentText;
+	@BindView( R.id.toggleHour )
+	protected Button toggleHour;
+	@BindView( R.id.toggleDay )
+	protected Button toggleDay;
+	@BindView( R.id.toggleWeek )
+	protected Button toggleWeek;
+	@BindView( R.id.toggleMonth )
+	protected Button toggleMonth;
+	@BindView( R.id.toggleYear )
+	protected Button toggleYear;
+	@BindView( R.id.toggleAll )
+	protected Button toggleAll;
 	private LineDataSet historyData;
-	@BindView(R.id.chart) protected LineChart priceChart;
+	@BindView( R.id.chart )
+	protected LineChart priceChart;
 	private Unbinder unbinder;
 	private Pair coinType;
 	private int selectedHistory;
@@ -118,23 +126,23 @@ public class CoinFragment extends Fragment {
 
 		Gson gson =
 				new GsonBuilder()
-						.registerTypeAdapter(Price.class, new PriceDeserializer())
-						.registerTypeAdapter(History.class, new HistoryDeserializer())
+						.registerTypeAdapter( Price.class, new PriceDeserializer() )
+						.registerTypeAdapter( History.class, new HistoryDeserializer() )
 						.create();
 
 		Retrofit retrofitCryptoCompare = new Retrofit.Builder()
-				.baseUrl(CryptoCompareAPI.URL)
-				.addConverterFactory( GsonConverterFactory.create(gson))
+				.baseUrl( CryptoCompareAPI.URL )
+				.addConverterFactory( GsonConverterFactory.create( gson ) )
 				.build();
 
-		priceService = retrofitCryptoCompare.create(CryptoCompareAPI.class);
+		priceService = retrofitCryptoCompare.create( CryptoCompareAPI.class );
 	}
 
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container,
 	                          Bundle savedInstanceState ) {
-		View view = inflater.inflate(R.layout.fragment_coin, container, false);
-		unbinder = ButterKnife.bind(this, view);
+		View view = inflater.inflate( R.layout.fragment_coin, container, false );
+		unbinder = ButterKnife.bind( this, view );
 
 		alerts = AlertHelper.get( getContext() ).getAlerts( coinType );
 		adapter = new AlertAdapter( alerts );
@@ -143,10 +151,8 @@ public class CoinFragment extends Fragment {
 		mOrderRecyclerView.setLayoutManager( new LinearLayoutManager( getContext() ) );
 		mOrderRecyclerView.setAdapter( adapter );
 
-		createAlert.setOnClickListener( new AlertDialogListener() );
-
 		selectedHistory = HISTORY_DAY;
-		if (savedInstanceState != null) {
+		if ( savedInstanceState != null ) {
 			selectedHistory = savedInstanceState.getInt( SELECTED_HISTORY, HISTORY_DAY );
 		}
 		switch ( selectedHistory ) {
@@ -171,7 +177,7 @@ public class CoinFragment extends Fragment {
 		}
 
 		toggleHour.setOnClickListener( new View.OnClickListener() {
-			public void onClick(View v) {
+			public void onClick( View v ) {
 				selectedHistory = HISTORY_HOUR;
 				updatePriceData();
 
@@ -185,7 +191,7 @@ public class CoinFragment extends Fragment {
 			}
 		} );
 		toggleDay.setOnClickListener( new View.OnClickListener() {
-			public void onClick(View v) {
+			public void onClick( View v ) {
 				selectedHistory = HISTORY_DAY;
 				updatePriceData();
 
@@ -199,7 +205,7 @@ public class CoinFragment extends Fragment {
 			}
 		} );
 		toggleWeek.setOnClickListener( new View.OnClickListener() {
-			public void onClick(View v) {
+			public void onClick( View v ) {
 				selectedHistory = HISTORY_WEEK;
 				updatePriceData();
 
@@ -213,7 +219,7 @@ public class CoinFragment extends Fragment {
 			}
 		} );
 		toggleMonth.setOnClickListener( new View.OnClickListener() {
-			public void onClick(View v) {
+			public void onClick( View v ) {
 				selectedHistory = HISTORY_MONTH;
 				updatePriceData();
 
@@ -227,7 +233,7 @@ public class CoinFragment extends Fragment {
 			}
 		} );
 		toggleYear.setOnClickListener( new View.OnClickListener() {
-			public void onClick(View v) {
+			public void onClick( View v ) {
 				selectedHistory = HISTORY_YEAR;
 				updatePriceData();
 
@@ -241,7 +247,7 @@ public class CoinFragment extends Fragment {
 			}
 		} );
 		toggleAll.setOnClickListener( new View.OnClickListener() {
-			public void onClick(View v) {
+			public void onClick( View v ) {
 				selectedHistory = HISTORY_ALL;
 				updatePriceData();
 
@@ -343,7 +349,9 @@ public class CoinFragment extends Fragment {
 		priceCall.enqueue( new Callback<Price>() {
 			@Override
 			public void onResponse( Call<Price> call, Response<Price> response ) {
-				if (response.body() == null) {return;}
+				if ( response.body() == null ) {
+					return;
+				}
 				final double price = response.body().price;
 				priceText.setText( NumberFormat.getNumberInstance( Locale.getDefault() ).format( price ) );
 				currentPrice = price;
@@ -362,8 +370,8 @@ public class CoinFragment extends Fragment {
 						historyData.setDrawCircles( false );
 						historyData.setDrawHorizontalHighlightIndicator( false );
 						historyData.setHighLightColor( ContextCompat.getColor( getActivity(), R.color.colorBackground ) );
-						priceChart.getAxisLeft().setAxisMinimum(historyData.getYMin());
-						priceChart.getAxisLeft().setAxisMaximum(historyData.getYMax());
+						priceChart.getAxisLeft().setAxisMinimum( historyData.getYMin() );
+						priceChart.getAxisLeft().setAxisMaximum( historyData.getYMax() );
 
 						double oldPrice = response.body().getEntries().get( 0 ).getY();
 
@@ -492,33 +500,48 @@ public class CoinFragment extends Fragment {
 				.setLifetime( Lifetime.FOREVER )
 				.setExtras( alertInfo )
 				.setTrigger(
-					Trigger.executionWindow( alert.getFrequency(), alert.getFrequency() + 60 ) )
+						Trigger.executionWindow( alert.getFrequency(), alert.getFrequency() + 60 ) )
 				.setReplaceCurrent( true )
 				.setRetryStrategy( RetryStrategy.DEFAULT_LINEAR )
 				.setConstraints(
-					Constraint.ON_ANY_NETWORK
+						Constraint.ON_ANY_NETWORK
 				);
 
-		if (!syncOnDataPref) {
+		if ( !syncOnDataPref ) {
 			alertBuilder = alertBuilder.setConstraints(
 					Constraint.ON_UNMETERED_NETWORK
-				);
+			);
 		}
 
 		dispatcher.mustSchedule( alertBuilder.build() );
 	}
 
 	static class AlertHolder extends RecyclerView.ViewHolder {
-		@BindView( R.id.alert_value ) public TextView value;
-		@BindView( R.id.alert_menu ) public ImageButton menuButton;
+		@BindView( R.id.alert_value )
+		public TextView value;
+		@BindView( R.id.alert_menu )
+		public ImageButton menuButton;
 
 		private AlertHolder( View view ) {
 			super( view );
-			ButterKnife.bind(this, view);
+			ButterKnife.bind( this, view );
 		}
 	}
 
-	private class AlertAdapter extends RecyclerView.Adapter<AlertHolder> {
+	static class CreateHolder extends RecyclerView.ViewHolder {
+		@BindView( R.id.create_alert )
+		public Button createAlert;
+
+		private CreateHolder( View view ) {
+			super( view );
+			ButterKnife.bind( this, view );
+		}
+	}
+
+	private class AlertAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+		private static final int TYPE_ITEM = 0;
+		private static final int TYPE_FOOTER = 1;
+
 		private List<Alert> alertList;
 
 		public AlertAdapter( List<Alert> alerts ) {
@@ -526,99 +549,121 @@ public class CoinFragment extends Fragment {
 		}
 
 		@Override
-		public AlertHolder onCreateViewHolder( ViewGroup parent, int viewType ) {
-			View alertView = LayoutInflater.from( parent.getContext() )
-					.inflate( R.layout.price_alert, parent, false );
+		public RecyclerView.ViewHolder onCreateViewHolder( ViewGroup parent, int viewType ) {
+			if ( viewType == TYPE_ITEM ) {
+				View alertView = LayoutInflater.from( parent.getContext() )
+						.inflate( R.layout.price_alert, parent, false );
 
-			return new AlertHolder( alertView );
+				return new AlertHolder( alertView );
+			} else {
+				View footerView = LayoutInflater.from( parent.getContext() )
+						.inflate( R.layout.price_footer, parent, false );
+
+				return new CreateHolder( footerView );
+			}
 		}
 
 		@Override
-		public void onBindViewHolder( final AlertHolder holder, int position ) {
-			Alert alert = alertList.get( position );
-
-			holder.value.setText( alert.getString( getContext() ) );
-
-			if ( !alert.isEnabled() ) {
-				holder.value.setTextColor(
-						ContextCompat.getColor( getContext(), R.color.colorLightGray ) );
+		public void onBindViewHolder( final RecyclerView.ViewHolder genericHolder, int position ) {
+			if ( position >= alertList.size() ) {
+				CreateHolder holder = (CreateHolder) genericHolder;
+				holder.createAlert.setOnClickListener( new AlertDialogListener() );
 			} else {
-				holder.value.setTextColor(
-						ContextCompat.getColor( getContext(), R.color.colorBackground ) );
-			}
+				Alert alert = alertList.get( position );
+				final AlertHolder holder = (AlertHolder) genericHolder;
 
-			holder.menuButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					PopupMenu popup = new PopupMenu(getContext(), view);
-					popup.inflate( R.menu.menu_alert );
+				holder.value.setText( alert.getString( getContext() ) );
 
-					if ( alertList.get( holder.getAdapterPosition() ).isEnabled() ) {
-						popup.getMenu().findItem( R.id.item_alert_enable ).setVisible( false );
-					} else {
-						popup.getMenu().findItem( R.id.item_alert_disable ).setVisible( false );
-					}
-
-					popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-						@Override
-						public boolean onMenuItemClick(MenuItem item) {
-							switch (item.getItemId()) {
-								case R.id.item_alert_enable:
-									AlertHelper
-											.get( getContext() )
-											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), true );
-
-									AlertHelper
-											.get( getContext() )
-											.updatePrevious( alertList.get( holder.getAdapterPosition() ).getId(), -1d );
-
-									alerts.get( holder.getAdapterPosition() ).setEnabled( true );
-									createPriceAlert( alerts.get( holder.getAdapterPosition() ) );
-
-									updateUI();
-									break;
-								case R.id.item_alert_disable:
-									AlertHelper
-											.get( getContext() )
-											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), false );
-
-									alerts.get( holder.getAdapterPosition() ).setEnabled( false );
-
-									FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( getContext() ) );
-									dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( alerts.get( holder.getAdapterPosition() ).getId() ) );
-
-									updateUI();
-									break;
-								case R.id.item_alert_delete:
-									AlertHelper
-											.get( getContext() )
-											.deleteAlert( alertList.get( holder.getAdapterPosition() ) );
-
-									alerts.remove( holder.getAdapterPosition() );
-									updateUI();
-									break;
-							}
-							return false;
-						}
-					});
-
-					popup.show();
+				if ( !alert.isEnabled() ) {
+					holder.value.setTextColor(
+							ContextCompat.getColor( getContext(), R.color.colorLightGray ) );
+				} else {
+					holder.value.setTextColor(
+							ContextCompat.getColor( getContext(), R.color.colorBackground ) );
 				}
-			});
+
+				holder.menuButton.setOnClickListener( new View.OnClickListener() {
+					@Override
+					public void onClick( View view ) {
+						PopupMenu popup = new PopupMenu( getContext(), view );
+						popup.inflate( R.menu.menu_alert );
+
+						if ( alertList.get( holder.getAdapterPosition() ).isEnabled() ) {
+							popup.getMenu().findItem( R.id.item_alert_enable ).setVisible( false );
+						} else {
+							popup.getMenu().findItem( R.id.item_alert_disable ).setVisible( false );
+						}
+
+						popup.setOnMenuItemClickListener( new PopupMenu.OnMenuItemClickListener() {
+							@Override
+							public boolean onMenuItemClick( MenuItem item ) {
+								switch ( item.getItemId() ) {
+									case R.id.item_alert_enable:
+										AlertHelper
+												.get( getContext() )
+												.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), true );
+
+										AlertHelper
+												.get( getContext() )
+												.updatePrevious( alertList.get( holder.getAdapterPosition() ).getId(), -1d );
+
+										alerts.get( holder.getAdapterPosition() ).setEnabled( true );
+										createPriceAlert( alerts.get( holder.getAdapterPosition() ) );
+
+										updateUI();
+										break;
+									case R.id.item_alert_disable:
+										AlertHelper
+												.get( getContext() )
+												.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), false );
+
+										alerts.get( holder.getAdapterPosition() ).setEnabled( false );
+
+										FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( getContext() ) );
+										dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( alerts.get( holder.getAdapterPosition() ).getId() ) );
+
+										updateUI();
+										break;
+									case R.id.item_alert_delete:
+										AlertHelper
+												.get( getContext() )
+												.deleteAlert( alertList.get( holder.getAdapterPosition() ) );
+
+										alerts.remove( holder.getAdapterPosition() );
+										updateUI();
+										break;
+								}
+								return false;
+							}
+						} );
+
+						popup.show();
+					}
+				} );
+			}
 		}
 
 		@Override
 		public int getItemCount() {
-			return alertList.size();
+			// there is always a price_footer
+			return alertList.size() + 1;
 		}
 
 		public void setAlerts( List<Alert> alertList ) {
 			this.alertList = alertList;
 		}
+
+		@Override
+		public int getItemViewType( int position ) {
+			if ( position >= alertList.size() ) {
+				return TYPE_FOOTER;
+			}
+			return TYPE_ITEM;
+		}
 	}
 
 	private class AlertDialogListener implements View.OnClickListener {
-		public void onClick(View v) {
+		public void onClick( View v ) {
 			LayoutInflater li = LayoutInflater.from( getContext() );
 			View promptsView = li.inflate( R.layout.alert_prompt, null );
 
@@ -679,11 +724,11 @@ public class CoinFragment extends Fragment {
 			// alert dialog hack to avoid being dismissed when input is invalid
 			alertDialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener(
 					new View.OnClickListener() {
-						public void onClick(View onClick) {
+						public void onClick( View onClick ) {
 							String input = alertValue.getText().toString().trim();
 
 							if ( input.isEmpty() ) {
-								alertValue.setError("Enter a value");
+								alertValue.setError( "Enter a value" );
 							} else {
 								String frequency = frequencySpinner.getSelectedItem().toString();
 								int frequencyValue = 3600;
@@ -718,7 +763,7 @@ public class CoinFragment extends Fragment {
 												currentPrice
 										);
 // TODO handle double parse error
-								createPriceAlert(alert);
+								createPriceAlert( alert );
 								alerts.add( alert );
 								updateUI();
 
