@@ -13,18 +13,25 @@ import java.lang.reflect.Type;
  * Created by chris on 12/31/2017.
  */
 
-public class PriceDeserializer implements JsonDeserializer<Price>
-{
+public class PriceDeserializer implements JsonDeserializer<Price> {
 	@Override
-	public Price deserialize( JsonElement je, Type type, JsonDeserializationContext jdc)
-			throws JsonParseException
-	{
+	public Price deserialize( JsonElement je, Type type, JsonDeserializationContext jdc )
+			throws JsonParseException {
 		JsonObject content = je.getAsJsonObject().getAsJsonObject( "RAW" );
-		String key1 = content.keySet().iterator().next();
-		JsonObject innerContent = content.getAsJsonObject( key1 );
-		String key2 = innerContent.keySet().iterator().next();
-		JsonObject data = innerContent.getAsJsonObject( key2 );
+		if ( content == null ) {
+			String message = je.getAsJsonObject().get( "Message" ).getAsString();
+			if ( message.startsWith( "There is no data for any of the toSymbols" ) ) {
+				throw new JsonParseException( "Coin unavailable" );
+			} else {
+				throw new JsonParseException( message );
+			}
+		} else {
+			String key1 = content.keySet().iterator().next();
+			JsonObject innerContent = content.getAsJsonObject( key1 );
+			String key2 = innerContent.keySet().iterator().next();
+			JsonObject data = innerContent.getAsJsonObject( key2 );
 
-		return new Gson().fromJson(data, Price.class);
+			return new Gson().fromJson( data, Price.class );
+		}
 	}
 }

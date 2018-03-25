@@ -72,30 +72,19 @@ public class AlertHelper {
 		}
 	}
 
-	public Alert addAlert( int action, double amount, long pairId, int type, int frequency, double previous ) {
+	public Alert addAlert( int action, double amount, long pairId, int type, int frequency ) {
 		ContentValues values = new ContentValues();
 		values.put( AlertDbSchema.Table.Cols.ACTION, action );
 		values.put( AlertDbSchema.Table.Cols.AMOUNT, amount );
 		values.put( AlertDbSchema.Table.Cols.PAIR, pairId );
 		values.put( AlertDbSchema.Table.Cols.TYPE, type );
-		values.put( AlertDbSchema.Table.Cols.PREVIOUS, previous );
 		values.put( AlertDbSchema.Table.Cols.FREQUENCY, frequency );
 		values.put( AlertDbSchema.Table.Cols.ENABLED, true );
 		values.put( AlertDbSchema.Table.Cols.ACTIVE, false );
 
 		long id = mDatabase.insert( AlertDbSchema.Table.NAME, null, values );
 
-		return new Alert( id, type, amount, -1d, action, pairId, frequency );
-	}
-
-	public void updatePrevious( long id, double previous ) {
-		ContentValues values = new ContentValues();
-		values.put( AlertDbSchema.Table.Cols.PREVIOUS, previous );
-
-		mDatabase.update( AlertDbSchema.Table.NAME,
-				values,
-				AlertDbSchema.Table.Cols.ID + " = ?",
-				new String[]{ Long.toString( id ) } );
+		return new Alert( id, type, amount, action, pairId, frequency );
 	}
 
 	public void updateEnabled( long id, boolean enabled ) {
@@ -118,10 +107,8 @@ public class AlertHelper {
 				new String[]{ Long.toString( id ) } );
 	}
 
-	public void deleteAlert( Alert alert ) {
-		FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( mContext ) );
-		// cancel the price alert job if it is running
-		dispatcher.cancel( CoinFragment.PRICE_ALERT_JOB + String.valueOf( alert.getId() ) );
+	public void deleteAlert( Alert alert, Context context ) {
+		alert.cancelPriceAlert( context );
 
 		mDatabase.delete( AlertDbSchema.Table.NAME,
 				AlertDbSchema.Table.Cols.ID + " = ?",

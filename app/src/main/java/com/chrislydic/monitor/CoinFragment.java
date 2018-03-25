@@ -22,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chrislydic.monitor.database.AlertHelper;
 import com.chrislydic.monitor.network.CryptoCompareAPI;
@@ -29,13 +30,6 @@ import com.chrislydic.monitor.network.History;
 import com.chrislydic.monitor.network.HistoryDeserializer;
 import com.chrislydic.monitor.network.Price;
 import com.chrislydic.monitor.network.PriceDeserializer;
-import com.firebase.jobdispatcher.Constraint;
-import com.firebase.jobdispatcher.FirebaseJobDispatcher;
-import com.firebase.jobdispatcher.GooglePlayDriver;
-import com.firebase.jobdispatcher.Job;
-import com.firebase.jobdispatcher.Lifetime;
-import com.firebase.jobdispatcher.RetryStrategy;
-import com.firebase.jobdispatcher.Trigger;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
@@ -64,7 +58,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  *
  */
 public class CoinFragment extends Fragment {
-	public static final String PRICE_ALERT_JOB = "com.chrislydic.monitor.pricealert.";
+	private static final String TAG = CoinFragment.class.getSimpleName();
 	private static final String SELECTED_HISTORY = "com.chrislydic.monitor.history";
 	private static final String COIN_TYPE = "ctype";
 	private static final int HISTORY_HOUR = 0;
@@ -96,7 +90,7 @@ public class CoinFragment extends Fragment {
 	private Unbinder unbinder;
 	private Pair coinType;
 	private int selectedHistory;
-	private double currentPrice;
+	private AlertDialog dialog;
 
 	private List<Alert> alerts;
 	private AlertAdapter adapter;
@@ -121,8 +115,6 @@ public class CoinFragment extends Fragment {
 		if ( getArguments() != null ) {
 			coinType = (Pair) getArguments().getSerializable( COIN_TYPE );
 		}
-
-		currentPrice = -1d;
 
 		Gson gson =
 				new GsonBuilder()
@@ -300,6 +292,12 @@ public class CoinFragment extends Fragment {
 	public void onDestroyView() {
 		super.onDestroyView();
 		unbinder.unbind();
+
+		if (dialog != null) {
+			dialog.dismiss();
+			dialog = null;
+		}
+
 		if ( priceCall != null ) {
 			priceCall.cancel();
 		}
@@ -352,14 +350,18 @@ public class CoinFragment extends Fragment {
 				if ( response.body() == null ) {
 					return;
 				}
+				adapter.setDisableFooter( false );
+
 				final double price = response.body().price;
 				priceText.setText( NumberFormat.getNumberInstance( Locale.getDefault() ).format( price ) );
-				currentPrice = price;
 
 				historyCall.enqueue( new Callback<History>() {
 					@Override
 					public void onResponse( Call<History> call, Response<History> response ) {
-						Log.e( "", call.getClass().toString() );
+						if ( response.body() == null || response.body().getEntries() == null ) {
+							return;
+						}
+
 						historyData = new LineDataSet( response.body().getEntries(), "price" );
 						historyData.setColor( ContextCompat.getColor( getContext(), R.color.positive ) );
 						historyData.setFillColor( ContextCompat.getColor( getContext(), R.color.positive ) );
@@ -400,14 +402,40 @@ public class CoinFragment extends Fragment {
 
 					@Override
 					public void onFailure( Call<History> call, Throwable t ) {
-						Log.e( "", t.getMessage() );
+						Log.e( TAG, t.getMessage() );
+
+						Toast.makeText(
+								getContext(),
+								getResources().getString( R.string.data_load_error ),
+								Toast.LENGTH_SHORT
+						).show();
 					}
 				} );
 			}
 
 			@Override
 			public void onFailure( Call<Price> call, Throwable t ) {
-				Log.e( "", t.getMessage() );
+				Log.e( TAG, t.getMessage() );
+
+				if ( t.getMessage().equals( "Coin unavailable" ) ) {
+					Toast.makeText(
+							getContext(),
+							getResources().getString( R.string.coin_retrieve_error ),
+							Toast.LENGTH_SHORT
+					).show();
+
+					priceText.setText( getResources().getString( R.string.price_empty ) );
+
+					adapter.setDisableFooter( true );
+				} else {
+					Toast.makeText(
+							getContext(),
+							getResources().getString( R.string.data_load_error ),
+							Toast.LENGTH_SHORT
+					).show();
+
+					priceText.setText( getResources().getString( R.string.price_empty ) );
+				}
 			}
 		} );
 	}
@@ -474,48 +502,6 @@ public class CoinFragment extends Fragment {
 		}
 	}
 
-	/**
-	 * Create a new service that checks hourly if the price of bitcoin has
-	 * fallen below priceFloor.
-	 *
-	 * @param alert new alert object
-	 */
-	private void createPriceAlert( Alert alert ) {
-		FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( getContext() ) );
-
-		dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( alert.getId() ) );
-
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences( getContext() );
-		boolean syncOnDataPref = sharedPref.getBoolean( "pref_use_data", false );
-
-		Bundle alertInfo = new Bundle();
-		alertInfo.putLong( PriceAlertService.ALERT_ARG, alert.getId() );
-
-		// create a price alert job that is recurring, lasts forever (until this app kills it),
-		//   and runs every x minutes provided there is network access
-		Job.Builder alertBuilder = dispatcher.newJobBuilder()
-				.setService( PriceAlertService.class )
-				.setTag( PRICE_ALERT_JOB + String.valueOf( alert.getId() ) )
-				.setRecurring( true )
-				.setLifetime( Lifetime.FOREVER )
-				.setExtras( alertInfo )
-				.setTrigger(
-						Trigger.executionWindow( alert.getFrequency(), alert.getFrequency() + 60 ) )
-				.setReplaceCurrent( true )
-				.setRetryStrategy( RetryStrategy.DEFAULT_LINEAR )
-				.setConstraints(
-						Constraint.ON_ANY_NETWORK
-				);
-
-		if ( !syncOnDataPref ) {
-			alertBuilder = alertBuilder.setConstraints(
-					Constraint.ON_UNMETERED_NETWORK
-			);
-		}
-
-		dispatcher.mustSchedule( alertBuilder.build() );
-	}
-
 	static class AlertHolder extends RecyclerView.ViewHolder {
 		@BindView( R.id.alert_value )
 		public TextView value;
@@ -543,6 +529,7 @@ public class CoinFragment extends Fragment {
 		private static final int TYPE_FOOTER = 1;
 
 		private List<Alert> alertList;
+		private boolean disableFooter;
 
 		public AlertAdapter( List<Alert> alerts ) {
 			alertList = alerts;
@@ -568,78 +555,14 @@ public class CoinFragment extends Fragment {
 			if ( position >= alertList.size() ) {
 				CreateHolder holder = (CreateHolder) genericHolder;
 				holder.createAlert.setOnClickListener( new AlertDialogListener() );
+
+				if (disableFooter ) {
+					holder.createAlert.setEnabled( false );
+				}
 			} else {
 				Alert alert = alertList.get( position );
-				final AlertHolder holder = (AlertHolder) genericHolder;
-
-				holder.value.setText( alert.getString( getContext() ) );
-
-				if ( !alert.isEnabled() ) {
-					holder.value.setTextColor(
-							ContextCompat.getColor( getContext(), R.color.colorLightGray ) );
-				} else {
-					holder.value.setTextColor(
-							ContextCompat.getColor( getContext(), R.color.colorBackground ) );
-				}
-
-				holder.menuButton.setOnClickListener( new View.OnClickListener() {
-					@Override
-					public void onClick( View view ) {
-						PopupMenu popup = new PopupMenu( getContext(), view );
-						popup.inflate( R.menu.menu_alert );
-
-						if ( alertList.get( holder.getAdapterPosition() ).isEnabled() ) {
-							popup.getMenu().findItem( R.id.item_alert_enable ).setVisible( false );
-						} else {
-							popup.getMenu().findItem( R.id.item_alert_disable ).setVisible( false );
-						}
-
-						popup.setOnMenuItemClickListener( new PopupMenu.OnMenuItemClickListener() {
-							@Override
-							public boolean onMenuItemClick( MenuItem item ) {
-								switch ( item.getItemId() ) {
-									case R.id.item_alert_enable:
-										AlertHelper
-												.get( getContext() )
-												.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), true );
-
-										AlertHelper
-												.get( getContext() )
-												.updatePrevious( alertList.get( holder.getAdapterPosition() ).getId(), -1d );
-
-										alerts.get( holder.getAdapterPosition() ).setEnabled( true );
-										createPriceAlert( alerts.get( holder.getAdapterPosition() ) );
-
-										updateUI();
-										break;
-									case R.id.item_alert_disable:
-										AlertHelper
-												.get( getContext() )
-												.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), false );
-
-										alerts.get( holder.getAdapterPosition() ).setEnabled( false );
-
-										FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( getContext() ) );
-										dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( alerts.get( holder.getAdapterPosition() ).getId() ) );
-
-										updateUI();
-										break;
-									case R.id.item_alert_delete:
-										AlertHelper
-												.get( getContext() )
-												.deleteAlert( alertList.get( holder.getAdapterPosition() ) );
-
-										alerts.remove( holder.getAdapterPosition() );
-										updateUI();
-										break;
-								}
-								return false;
-							}
-						} );
-
-						popup.show();
-					}
-				} );
+				AlertHolder holder = (AlertHolder) genericHolder;
+				setupAlertHolder( holder, alert );
 			}
 		}
 
@@ -660,15 +583,85 @@ public class CoinFragment extends Fragment {
 			}
 			return TYPE_ITEM;
 		}
+
+		public void setDisableFooter( boolean disableFooter ) {
+			this.disableFooter = disableFooter;
+			notifyDataSetChanged();
+		}
+
+		private void setupAlertHolder( final AlertHolder holder, Alert alert ) {
+			holder.value.setText( alert.getString( getContext() ) );
+
+			if ( !alert.isEnabled() ) {
+				holder.value.setTextColor(
+						ContextCompat.getColor( getContext(), R.color.colorLightGray ) );
+			} else {
+				holder.value.setTextColor(
+						ContextCompat.getColor( getContext(), R.color.colorBackground ) );
+			}
+
+			holder.menuButton.setOnClickListener( new View.OnClickListener() {
+				@Override
+				public void onClick( View view ) {
+					PopupMenu popup = new PopupMenu( getContext(), view );
+					popup.inflate( R.menu.menu_alert );
+
+					if ( alertList.get( holder.getAdapterPosition() ).isEnabled() ) {
+						popup.getMenu().findItem( R.id.item_alert_enable ).setVisible( false );
+					} else {
+						popup.getMenu().findItem( R.id.item_alert_disable ).setVisible( false );
+					}
+
+					popup.setOnMenuItemClickListener( new PopupMenu.OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick( MenuItem item ) {
+							switch ( item.getItemId() ) {
+								case R.id.item_alert_enable:
+									AlertHelper
+											.get( getContext() )
+											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), true );
+
+									alerts.get( holder.getAdapterPosition() ).setEnabled( true );
+									alerts.get( holder.getAdapterPosition() ).createPriceAlert( getContext() );
+
+									updateUI();
+									break;
+								case R.id.item_alert_disable:
+									AlertHelper
+											.get( getContext() )
+											.updateEnabled( alertList.get( holder.getAdapterPosition() ).getId(), false );
+
+									alerts.get( holder.getAdapterPosition() ).setEnabled( false );
+									alerts.get( holder.getAdapterPosition() ).cancelPriceAlert( getContext() );
+
+									updateUI();
+									break;
+								case R.id.item_alert_delete:
+									AlertHelper
+											.get( getContext() )
+											.deleteAlert( alertList.get( holder.getAdapterPosition() ), getContext() );
+
+									alerts.remove( holder.getAdapterPosition() );
+									updateUI();
+									break;
+							}
+							return false;
+						}
+					} );
+
+					popup.show();
+				}
+			} );
+		}
 	}
 
 	private class AlertDialogListener implements View.OnClickListener {
 		public void onClick( View v ) {
-			LayoutInflater li = LayoutInflater.from( getContext() );
+			LayoutInflater li = LayoutInflater.from( v.getContext() );
 			View promptsView = li.inflate( R.layout.alert_prompt, null );
 
 			AlertDialog.Builder alertDialogBuilder =
-					new AlertDialog.Builder( getContext() );
+					new AlertDialog.Builder( v.getContext() );
 			alertDialogBuilder.setView( promptsView );
 			alertDialogBuilder.setCancelable( false );
 
@@ -713,16 +706,21 @@ public class CoinFragment extends Fragment {
 			alertDialogBuilder.setNegativeButton(
 					"Cancel",
 					new DialogInterface.OnClickListener() {
-						public void onClick( DialogInterface dialog, int id ) {
-							dialog.cancel();
+						public void onClick( DialogInterface dialogIn, int id ) {
+							dialogIn.cancel();
+							dialog = null;
 						}
 					} );
 
-			final AlertDialog alertDialog = alertDialogBuilder.create();
-			alertDialog.show();
+			if ( dialog != null ) {
+				dialog.dismiss();
+				dialog = null;
+			}
+			dialog = alertDialogBuilder.create();
+			dialog.show();
 
 			// alert dialog hack to avoid being dismissed when input is invalid
-			alertDialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener(
+			dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener(
 					new View.OnClickListener() {
 						public void onClick( View onClick ) {
 							String input = alertValue.getText().toString().trim();
@@ -734,7 +732,7 @@ public class CoinFragment extends Fragment {
 								int frequencyValue = 3600;
 								int alertType = Alert.PRICE_VALUE;
 								int alertDirection = Alert.RISE_TO;
-								String[] frequencies = getResources().getStringArray( R.array.frequencies );
+								String[] frequencies = onClick.getResources().getStringArray( R.array.frequencies );
 
 								for ( int i = 0; i < frequencies.length; i++ ) {
 									if ( frequencies[i].equals( frequency ) ) {
@@ -753,21 +751,21 @@ public class CoinFragment extends Fragment {
 								}
 
 								Alert alert = AlertHelper
-										.get( getContext() )
+										.get( onClick.getContext() )
 										.addAlert(
 												alertDirection,
 												Double.parseDouble( input ),
 												coinType.getId(),
 												alertType,
-												frequencyValue,
-												currentPrice
+												frequencyValue
 										);
 // TODO handle double parse error
-								createPriceAlert( alert );
+								alert.createPriceAlert( onClick.getContext() );
 								alerts.add( alert );
 								updateUI();
 
-								alertDialog.dismiss();
+								dialog.dismiss();
+								dialog = null;
 							}
 						}
 					}

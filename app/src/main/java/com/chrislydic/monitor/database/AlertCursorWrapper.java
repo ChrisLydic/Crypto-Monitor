@@ -20,11 +20,10 @@ public class AlertCursorWrapper extends CursorWrapper {
 		double amount = getDouble( getColumnIndex( AlertDbSchema.Table.Cols.AMOUNT ) );
 		int action = getInt( getColumnIndex( AlertDbSchema.Table.Cols.ACTION ) );
 		int pairId = getInt( getColumnIndex( AlertDbSchema.Table.Cols.PAIR ) );
-		double previous = getDouble( getColumnIndex( AlertDbSchema.Table.Cols.PREVIOUS ) );
 		int frequency = getInt( getColumnIndex( AlertDbSchema.Table.Cols.FREQUENCY ) );
 		boolean enabled = getInt( getColumnIndex( AlertDbSchema.Table.Cols.ENABLED ) ) == 1;
 		boolean active = getInt( getColumnIndex( AlertDbSchema.Table.Cols.ACTIVE ) ) == 1;
 
-		return new Alert( id, type, amount, previous, action, pairId, frequency, enabled, active );
+		return new Alert( id, type, amount, action, pairId, frequency, enabled, active );
 	}
 }

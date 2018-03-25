@@ -6,7 +6,7 @@
 
     <Button
         android:id="@+id/create_alert"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

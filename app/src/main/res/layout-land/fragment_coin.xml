@@ -37,7 +37,6 @@
                         android:id="@+id/price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/price"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title.Inverse"
                         android:textSize="48sp"/>
 
@@ -45,7 +44,6 @@
                         android:id="@+id/percent"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/percent"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title.Inverse"/>
 
                 </LinearLayout>

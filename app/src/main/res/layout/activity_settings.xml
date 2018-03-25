@@ -18,6 +18,16 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/attribution"
+        android:textColor="@color/colorAccent"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="16dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead.Inverse"/>
+
     <FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -27,16 +37,16 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Currency Pairs"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="18dp"
+        android:text="@string/currency_pairs"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead.Inverse"/>
 
     <android.support.v7.widget.RecyclerView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/pair_recycler_view"
+        android:layout_marginStart="4dp"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

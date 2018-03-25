@@ -30,7 +30,6 @@ public class MonitorBaseHelper extends SQLiteOpenHelper {
 				AlertDbSchema.Table.Cols.TYPE + " integer, " +
 				AlertDbSchema.Table.Cols.AMOUNT + " real, " +
 				AlertDbSchema.Table.Cols.ACTION + " integer, " +
-				AlertDbSchema.Table.Cols.PREVIOUS + " real, " +
 				AlertDbSchema.Table.Cols.FREQUENCY + " integer, " +
 				AlertDbSchema.Table.Cols.ENABLED + " integer DEFAULT 0, " +
 				AlertDbSchema.Table.Cols.ACTIVE + " integer DEFAULT 0, " +

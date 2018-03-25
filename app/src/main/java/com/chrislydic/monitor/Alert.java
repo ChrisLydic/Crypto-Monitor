@@ -1,6 +1,17 @@
 package com.chrislydic.monitor;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 
 import java.io.Serializable;
 import java.util.Locale;
@@ -9,27 +20,27 @@ import java.util.Locale;
  * An entry in an order book.
  */
 public class Alert implements Serializable {
-	public static final int[] FREQ_VALUES = new int[]{300, 60, 900, 1800, 3600, 10800, 21600, 43200, 86400};
+	public static final String PRICE_ALERT_JOB = "com.chrislydic.monitor.pricealert.";
+	public static final int[] FREQ_VALUES = new int[]{1800, 3600, 10800, 21600, 43200, 86400};
 	public static final int RISE_TO = 0;
 	public static final int FALL_TO = 1;
 	public static final int CHANGE_TO = 2;
 	public static final int PRICE_VALUE = 0;
 	public static final int PERCENT_VALUE = 1;
+	public static final int DELAY = 60;
 	private long id;
 	private int type;
 	private double amount;
-	private double previous;
 	private int action;
 	private long pairId;
 	private int frequency;
 	private boolean enabled;
 	private boolean active;
 
-	public Alert( long id, int type, double amount, double previous, int action, long pairId, int frequency, boolean enabled, boolean active ) {
+	public Alert( long id, int type, double amount, int action, long pairId, int frequency, boolean enabled, boolean active ) {
 		this.id = id;
 		this.type = type;
 		this.amount = amount;
-		this.previous = previous;
 		this.action = action;
 		this.pairId = pairId;
 		this.frequency = frequency;
@@ -37,13 +48,13 @@ public class Alert implements Serializable {
 		this.active = active;
 	}
 
-	public Alert( long id, int type, double amount, double previous, int action, long pairId, int frequency ) {
-		this( id, type, amount, previous, action, pairId, frequency, true, false );
+	public Alert( long id, int type, double amount, int action, long pairId, int frequency ) {
+		this( id, type, amount, action, pairId, frequency, true, false );
 	}
 
 	public String getString( Context ctx ) {
 		String[] frequencies = ctx.getResources().getStringArray( R.array.frequencies );
-		String time = "1 hour";
+		String time = frequencies[0];
 
 		for ( int i = 0; i < Alert.FREQ_VALUES.length; i++ ) {
 			if ( Alert.FREQ_VALUES[i] == frequency ) {
@@ -107,10 +118,6 @@ public class Alert implements Serializable {
 		return amount;
 	}
 
-	public double getPrevious() {
-		return previous;
-	}
-
 	public int getAction() {
 		return action;
 	}
@@ -137,6 +144,54 @@ public class Alert implements Serializable {
 
 	public boolean isActive() {
 		return active;
+	}
+
+
+	/**
+	 * Create a new service that checks hourly if the price of bitcoin has
+	 * fallen below priceFloor.
+	 *
+	 * @param context
+	 */
+	public void createPriceAlert( Context context ) {
+		FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( context ) );
+
+		dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( id ) );
+
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences( context );
+		boolean syncOnDataPref = sharedPref.getBoolean( "pref_use_data", false );
+
+		Bundle alertInfo = new Bundle();
+		alertInfo.putLong( PriceAlertService.ALERT_ARG, id );
+
+		// create a price alert job that is recurring, lasts forever (until this app kills it),
+		//   and runs every x minutes provided there is network access
+		Job.Builder alertBuilder = dispatcher.newJobBuilder()
+				.setService( PriceAlertService.class )
+				.setTag( PRICE_ALERT_JOB + String.valueOf( id ) )
+				.setRecurring( true )
+				.setLifetime( Lifetime.FOREVER )
+				.setExtras( alertInfo )
+				.setTrigger(
+						Trigger.executionWindow( frequency, frequency + DELAY ) )
+				.setReplaceCurrent( true )
+				.setRetryStrategy( RetryStrategy.DEFAULT_LINEAR )
+				.setConstraints(
+						Constraint.ON_ANY_NETWORK
+				);
+
+		if ( !syncOnDataPref ) {
+			alertBuilder = alertBuilder.setConstraints(
+					Constraint.ON_UNMETERED_NETWORK
+			);
+		}
+
+		dispatcher.mustSchedule( alertBuilder.build() );
+	}
+
+	public void cancelPriceAlert( Context context ) {
+		FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher( new GooglePlayDriver( context ) );
+		dispatcher.cancel( PRICE_ALERT_JOB + String.valueOf( id ) );
 	}
 }
 

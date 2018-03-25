@@ -8,12 +8,16 @@ import retrofit2.http.Query;
  * Created by chris on 12/26/2017.
  */
 public interface CryptoCompareAPI {
-	public static final String URL = "https://min-api.cryptocompare.com";
-	public static final int HOUR = 60;
-	public static final int DAY = 1440;
-	public static final int WEEK = 168;
-	public static final int MONTH = 720;
-	public static final int YEAR = 365;
+	String URL = "https://min-api.cryptocompare.com";
+	int HALF_HOUR = 30;
+	int HOUR = 60;
+	int THREE_HOURS = 180;
+	int SIX_HOURS = 360;
+	int TWELVE_HOURS = 720;
+	int DAY = 1440;
+	int WEEK = 168;
+	int MONTH = 720;
+	int YEAR = 365;
 
 	@GET("/data/all/coinlist")
 	public Call<CoinList> fetchCoinList();

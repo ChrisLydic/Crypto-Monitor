@@ -3,6 +3,10 @@
     <string name="action_settings">Settings</string>
     <string name="action_add">Add Coin</string>
 
+    <string name="coin_retrieve_error">There is no data available for this coin.</string>
+    <string name="data_load_error">Unable to load data.</string>
+    <string name="price_empty">---</string>
+
     <string name="create_price_alert">Create new price alert</string>
     <string name="edit_price_alert">Edit Price Alert</string>
 
@@ -42,9 +46,6 @@
     <string name="alert_change_to">Change to %1$s (%2$s)</string>
     <string name="alert_change_by">Change by %1$s%% (%2$s)</string>
 
-    <string name="price">XX</string>
-    <string name="percent">+X%</string>
-
     <string name="hour">Hour</string>
     <string name="day">Day</string>
     <string name="week">Week</string>
@@ -65,10 +66,6 @@
     <string name="price_alert_notification_decreased_by">decreased by</string>
 
     <string-array name="frequencies">
-        <item>5 min</item>
-        <item>1 min</item>
-        <item>15 minutes</item>
-
         <item>30 minutes</item>
         <item>1 hour</item>
         <item>3 hours</item>
@@ -78,10 +75,6 @@
     </string-array>
 
     <string-array name="frequenciesNotification">
-        <item>5 min</item>
-        <item>1 min</item>
-        <item>15 minutes</item>
-
         <item>30 minutes</item>
         <item>hour</item>
         <item>3 hours</item>
@@ -99,6 +92,9 @@
 
     <!-- Strings related to Settings -->
     <string name="title_activity_settings">Settings</string>
+    <string name="attribution">This app uses the cryptocompare.com API</string>
+
+    <string name="currency_pairs">Currency Pairs</string>
 
     <string name="use_data">Use Cellular Data</string>
     <string name="use_data_description">Use cellular data for alerts</string>
