@@ -21,7 +21,7 @@ import java.util.Locale;
  */
 public class Alert implements Serializable {
 	public static final String PRICE_ALERT_JOB = "com.chrislydic.monitor.pricealert.";
-	public static final int[] FREQ_VALUES = new int[]{1800, 3600, 10800, 21600, 43200, 86400};
+	public static final int[] FREQ_VALUES = new int[]{3600, 10800, 21600, 43200, 86400};
 	public static final int RISE_TO = 0;
 	public static final int FALL_TO = 1;
 	public static final int CHANGE_TO = 2;

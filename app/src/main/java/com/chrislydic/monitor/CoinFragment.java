@@ -347,7 +347,7 @@ public class CoinFragment extends Fragment {
 		priceCall.enqueue( new Callback<Price>() {
 			@Override
 			public void onResponse( Call<Price> call, Response<Price> response ) {
-				if ( response.body() == null ) {
+				if ( response.body() == null || !isAdded() ) {
 					return;
 				}
 				adapter.setDisableFooter( false );
@@ -358,7 +358,7 @@ public class CoinFragment extends Fragment {
 				historyCall.enqueue( new Callback<History>() {
 					@Override
 					public void onResponse( Call<History> call, Response<History> response ) {
-						if ( response.body() == null || response.body().getEntries() == null ) {
+						if ( response.body() == null || !isAdded() ) {
 							return;
 						}
 
@@ -404,11 +404,13 @@ public class CoinFragment extends Fragment {
 					public void onFailure( Call<History> call, Throwable t ) {
 						Log.e( TAG, t.getMessage() );
 
-						Toast.makeText(
-								getContext(),
-								getResources().getString( R.string.data_load_error ),
-								Toast.LENGTH_SHORT
-						).show();
+						if (isAdded()) {
+							Toast.makeText(
+									getContext(),
+									getResources().getString( R.string.data_load_error ),
+									Toast.LENGTH_SHORT
+							).show();
+						}
 					}
 				} );
 			}
@@ -418,23 +420,27 @@ public class CoinFragment extends Fragment {
 				Log.e( TAG, t.getMessage() );
 
 				if ( t.getMessage().equals( "Coin unavailable" ) ) {
-					Toast.makeText(
-							getContext(),
-							getResources().getString( R.string.coin_retrieve_error ),
-							Toast.LENGTH_SHORT
-					).show();
+					if (isAdded()) {
+						Toast.makeText(
+								getContext(),
+								getResources().getString( R.string.coin_retrieve_error ),
+								Toast.LENGTH_SHORT
+						).show();
 
-					priceText.setText( getResources().getString( R.string.price_empty ) );
+						priceText.setText( getResources().getString( R.string.price_empty ) );
 
-					adapter.setDisableFooter( true );
+						adapter.setDisableFooter( true );
+					}
 				} else {
-					Toast.makeText(
-							getContext(),
-							getResources().getString( R.string.data_load_error ),
-							Toast.LENGTH_SHORT
-					).show();
+					if (isAdded()) {
+						Toast.makeText(
+								getContext(),
+								getResources().getString( R.string.data_load_error ),
+								Toast.LENGTH_SHORT
+						).show();
 
-					priceText.setText( getResources().getString( R.string.price_empty ) );
+						priceText.setText( getResources().getString( R.string.price_empty ) );
+					}
 				}
 			}
 		} );

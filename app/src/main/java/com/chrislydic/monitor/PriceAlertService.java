@@ -68,14 +68,12 @@ public class PriceAlertService extends JobService {
 		}
 
 		if ( alert.getFrequency() == Alert.FREQ_VALUES[0] ) {
-			priceCall = priceService.fetchHistoMinute( pair.getFromSymbol(), pair.getToSymbol(), CryptoCompareAPI.HALF_HOUR, exchangePref );
-		} else if ( alert.getFrequency() == Alert.FREQ_VALUES[1] ) {
 			priceCall = priceService.fetchHistoMinute( pair.getFromSymbol(), pair.getToSymbol(), CryptoCompareAPI.HOUR, exchangePref );
-		} else if ( alert.getFrequency() == Alert.FREQ_VALUES[2] ) {
+		} else if ( alert.getFrequency() == Alert.FREQ_VALUES[1] ) {
 			priceCall = priceService.fetchHistoMinute( pair.getFromSymbol(), pair.getToSymbol(), CryptoCompareAPI.THREE_HOURS, exchangePref );
-		} else if ( alert.getFrequency() == Alert.FREQ_VALUES[3] ) {
+		} else if ( alert.getFrequency() == Alert.FREQ_VALUES[2] ) {
 			priceCall = priceService.fetchHistoMinute( pair.getFromSymbol(), pair.getToSymbol(), CryptoCompareAPI.SIX_HOURS, exchangePref );
-		} else if ( alert.getFrequency() == Alert.FREQ_VALUES[4] ) {
+		} else if ( alert.getFrequency() == Alert.FREQ_VALUES[3] ) {
 			priceCall = priceService.fetchHistoMinute( pair.getFromSymbol(), pair.getToSymbol(), CryptoCompareAPI.TWELVE_HOURS, exchangePref );
 		} else {
 			priceCall = priceService.fetchHistoMinute( pair.getFromSymbol(), pair.getToSymbol(), CryptoCompareAPI.DAY, exchangePref );
@@ -163,9 +161,6 @@ public class PriceAlertService extends JobService {
 							String.format( Locale.getDefault(), "%.2f", percentChange )
 					);
 
-					description += " " + prices.get( 0 ).getX();
-					description += " " + prices.get( prices.size() - 1 ).getX();
-
 					// create a notification that will open the main activity when tapped
 					NotificationCompat.Builder builder =
 							new NotificationCompat.Builder( getApplicationContext() )
@@ -198,11 +193,9 @@ public class PriceAlertService extends JobService {
 							NOTIFICATION_ID,
 							builder.build()
 					);
-				} else {
-					//jobFinished( jobParams, false ); end notification
 				}
 
-				jobFinished( jobParams, true );
+				jobFinished( jobParams, false );
 			}
 
 			@Override
