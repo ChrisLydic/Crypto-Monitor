@@ -14,9 +14,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +53,7 @@ public class PairFragment extends Fragment {
 	private Call<SimplePrice> priceCall;
 
 	@BindView(R.id.search_coin) protected EditText searchCoin;
+	@BindView(R.id.coin_loading) protected ProgressBar loadCoin;
 	private TextWatcher searchWatcher;
 	private CoinList coinList;
 	private CoinAdapter adapter;
@@ -153,6 +154,7 @@ public class PairFragment extends Fragment {
 	 * Update the ui with new data.
 	 */
 	private void updateUI() {
+		loadCoin.setVisibility( View.GONE );
 		adapter.setCoins( coinList.getCoins() );
 		adapter.notifyDataSetChanged();
 	}

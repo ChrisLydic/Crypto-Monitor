@@ -16,6 +16,15 @@
         android:hint="@string/search_hint"
         android:inputType="text"/>
 
+    <ProgressBar
+        android:id="@+id/coin_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:indeterminate="true"
+        android:paddingTop="32dp"
+        />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/coin_recycler_view"
         android:layout_width="match_parent"
