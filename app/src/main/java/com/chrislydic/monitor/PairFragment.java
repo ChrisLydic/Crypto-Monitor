@@ -48,6 +48,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  *
  */
 public class PairFragment extends Fragment {
+	private static final String TAG = PairFragment.class.getSimpleName();
 	private CryptoCompareAPI priceService;
 	private Call<CoinList> coinListCall;
 	private Call<SimplePrice> priceCall;
@@ -107,7 +108,17 @@ public class PairFragment extends Fragment {
 
 			@Override
 			public void onFailure( Call<CoinList> call, Throwable t ) {
-				Log.e( "", t.getMessage() );
+				Log.e( TAG, t.getMessage() );
+
+				if (isAdded()) {
+					Toast.makeText(
+							getContext(),
+							getResources().getString( R.string.data_load_error ),
+							Toast.LENGTH_SHORT
+					).show();
+
+					loadCoin.setVisibility( View.GONE );
+				}
 			}
 		} );
 

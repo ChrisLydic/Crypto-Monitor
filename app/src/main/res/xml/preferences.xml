@@ -5,7 +5,7 @@
         android:title="@string/use_data"
         android:summary="@string/use_data_description"
         android:defaultValue="false" />
-    <!-- todo ENABLE THIS ONCE I FIGURE OUT HOW TO HANDLE EXCHANGES THAT ARE MISSING PAIRS
+    <!-- todo enable this once I figure out how to handle exchanges that are missing pairs
     <ListPreference
         android:key="pref_exchange"
         android:title="@string/exchange_select"

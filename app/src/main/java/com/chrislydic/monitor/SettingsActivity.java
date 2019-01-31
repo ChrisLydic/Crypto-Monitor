@@ -10,13 +10,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.chrislydic.monitor.database.PairHelper;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,7 +56,6 @@ public class SettingsActivity extends AppCompatActivity {
 	}
 
 	private void updateUI() {
-		adapter.setPairs( pairsList );
 		adapter.notifyDataSetChanged();
 	}
 
@@ -146,11 +143,6 @@ public class SettingsActivity extends AppCompatActivity {
 		@Override
 		public int getItemCount() {
 			return pairs.size();
-		}
-
-		// TODO: 1/22/2018 is this needed?
-		public void setPairs( List<Pair> pairList ) {
-			this.pairs = pairList;
 		}
 	}
 }

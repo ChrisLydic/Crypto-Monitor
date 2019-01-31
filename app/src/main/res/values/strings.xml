@@ -24,6 +24,7 @@
     <string name="enter_value_description">Value</string>
     <string name="enter_frequency_title">Frequency</string>
     <string name="enter_frequency_description">Frequency</string>
+    <string name="enter_value_error">Enter a valid value</string>
 
     <string name="create_new_pair">Create New Currency Pair</string>
     <string name="search_hint">Search</string>
@@ -186,4 +187,6 @@
     <string name="move_pair_up_description">Move the currency pair up</string>
     <string name="move_pair_down_description">Move the currency pair down</string>
     <string name="delete_pair_description">Delete the currency pair</string>
+    <string name="coin_image_description">Logo for the cryptocurrency</string>
+    <string name="price_alert_drop_down_description">Show options for the price alert</string>
 </resources>

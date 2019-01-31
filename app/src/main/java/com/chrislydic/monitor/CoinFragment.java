@@ -732,7 +732,7 @@ public class CoinFragment extends Fragment {
 							String input = alertValue.getText().toString().trim();
 
 							if ( input.isEmpty() ) {
-								alertValue.setError( "Enter a value" );
+								alertValue.setError( getString( R.string.enter_value_error ) );
 							} else {
 								String frequency = frequencySpinner.getSelectedItem().toString();
 								int frequencyValue = 3600;
@@ -756,22 +756,27 @@ public class CoinFragment extends Fragment {
 									alertDirection = Alert.CHANGE_TO;
 								}
 
-								Alert alert = AlertHelper
-										.get( onClick.getContext() )
-										.addAlert(
-												alertDirection,
-												Double.parseDouble( input ),
-												coinType.getId(),
-												alertType,
-												frequencyValue
-										);
-// TODO handle double parse error
-								alert.createPriceAlert( onClick.getContext() );
-								alerts.add( alert );
-								updateUI();
+								try {
+									Alert alert = AlertHelper
+											.get( onClick.getContext() )
+											.addAlert(
+													alertDirection,
+													Double.parseDouble( input ),
+													coinType.getId(),
+													alertType,
+													frequencyValue
+											);
 
-								dialog.dismiss();
-								dialog = null;
+									alert.createPriceAlert( onClick.getContext() );
+									alerts.add( alert );
+									updateUI();
+
+									dialog.dismiss();
+									dialog = null;
+								} catch ( NumberFormatException exc ) {
+									// handle double parse error
+									alertValue.setError( getString( R.string.enter_value_error ) );
+								}
 							}
 						}
 					}

@@ -33,23 +33,22 @@
         android:id="@+id/type_buttons"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:checkedButton="@+id/price_option"
+        android:checkedButton="@id/percent_option"
         android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/percent_option"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:text="@string/percent_option"/>
 
         <RadioButton
             android:id="@+id/price_option"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.33"
-            android:text="@string/price_option"/>
-
-        <RadioButton
-            android:id="@+id/percent_option"
-            style="@android:style/Widget.DeviceDefault.Light.CompoundButton.RadioButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="0.66"
-            android:text="@string/percent_option"/>
+            android:text="@string/price_option"/>
     </RadioGroup>
 
     <TextView
@@ -116,7 +115,7 @@
             android:labelFor="@id/alert_value_input"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/enter_value_price_type"
+            android:text="@string/enter_value_percent_type"
             android:textSize="16sp"
             android:textAppearance="?android:attr/textAppearanceLarge"
             />
